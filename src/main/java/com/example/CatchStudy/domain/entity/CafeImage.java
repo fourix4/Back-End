@@ -20,4 +20,8 @@ public class CafeImage {
 
     @Column
     private String cafeImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cafe_id")
+    private StudyCafe studyCafe;
 }

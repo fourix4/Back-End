@@ -17,4 +17,11 @@ public class ChatRoom {
     @Column
     private Boolean status; //true:읽음
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cafe_id")
+    private StudyCafe studyCafe;
 }

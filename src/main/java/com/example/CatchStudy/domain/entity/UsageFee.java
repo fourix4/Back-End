@@ -19,4 +19,8 @@ public class UsageFee {
 
     @Column
     private Integer price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cafe_id")
+    private StudyCafe studyCafe;
 }

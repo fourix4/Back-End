@@ -37,4 +37,8 @@ public class StudyCafe {
 
     @Column
     private String cafePhone;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users user;
 }

@@ -24,4 +24,12 @@ public class Message {
 
     @Column(name = "message_image")
     private String MessageImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "char_room_id")
+    private ChatRoom chatRoom;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users user;
 }
