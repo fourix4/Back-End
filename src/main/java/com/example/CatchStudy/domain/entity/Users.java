@@ -22,8 +22,8 @@ public class Users {
     private String userName;
 
     @Column
-    @Enumerated
-    private Enum<Gender> gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(name = "user_phone")
     private String userPhone;
@@ -32,6 +32,6 @@ public class Users {
     private LocalDateTime birth;
 
     @Column
-    @Enumerated
-    private Enum<Author> author;
+    @Enumerated(EnumType.STRING)
+    private Author author;
 }

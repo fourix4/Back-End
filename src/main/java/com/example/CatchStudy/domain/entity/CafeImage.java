@@ -15,8 +15,8 @@ public class CafeImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cafeImageId;
 
-    @Enumerated
-    private Enum<ImageType> imageType;
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType;
 
     @Column
     private String cafeImage;

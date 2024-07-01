@@ -25,8 +25,8 @@ public class Booking {
     @Column
     private String code;
 
-    @Enumerated
-    private Enum<BookingStatus> status;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

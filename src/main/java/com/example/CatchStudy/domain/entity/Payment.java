@@ -24,8 +24,8 @@ public class Payment {
     @Column
     private Integer amount;
 
-    @Enumerated
-    private Enum<PaymentType> paymentType;
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id")
