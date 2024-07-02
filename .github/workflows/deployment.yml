@@ -24,7 +24,7 @@ jobs:
       - name: Set Environment
         uses: microsoft/variable-substitution@v1
         with:
-          files: ./catchstudy/src/main/resources/application-common.yml
+          files: ./catchstudy/src/main/resources/application.yml
         env:
               spring.datasource.url: ${{ secrets.DB_URL }}
               spring.datasource.username: ${{ secrets.DB_USER }}
