@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest # 3 실행 환경 지정
+
     #4 실행스텝지정
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +21,15 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Set Environment
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./catchstudy/src/main/resources/application-common.yml
+        env:
+              url: ${{ secrets.DB_URL }}
+              username: ${{ secrets.DB_USER }}
+              password: ${{ Secrets.DB_PASSWORD }}
+              
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
