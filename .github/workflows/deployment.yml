@@ -26,9 +26,9 @@ jobs:
         with:
           files: ./catchstudy/src/main/resources/application-common.yml
         env:
-              url: ${{ secrets.DB_URL }}
-              username: ${{ secrets.DB_USER }}
-              password: ${{ Secrets.DB_PASSWORD }}
+              spring.datasource.url: ${{ secrets.DB_URL }}
+              spring.datasource.username: ${{ secrets.DB_USER }}
+              spring.datasource.password: ${{ Secrets.DB_PASSWORD }}
               
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
