@@ -24,7 +24,7 @@ jobs:
       - name: Set Environment
         uses: microsoft/variable-substitution@v1
         with:
-          files: ./catchstudy/src/main/resources/application.yml
+          files: ./Back-End/src/main/resources/application.yml
         env:
               spring.datasource.url: ${{ secrets.DB_URL }}
               spring.datasource.username: ${{ secrets.DB_USER }}
@@ -45,7 +45,7 @@ jobs:
 
       # 3 catchstudy 배포용 패키지 경로 저장
       - name: catchstudy Set artifact
-        run: echo "artifact=$(ls ./catchstudy/build/libs | grep -v 'plain')" >> $GITHUB_ENV
+        run: echo "artifact=$(ls ./Back-End/build/libs | grep -v 'plain')" >> $GITHUB_ENV
 
       # 4 빈스토크 배포
       - name: Beanstalk Deploy
@@ -57,5 +57,5 @@ jobs:
           environment_name: Catch-study-env
           version_label: catch-study-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          deployment_package: ./catchstudy/build/libs/${{env.artifact}}
+          deployment_package: ./Back-End/build/libs/${{env.artifact}}
           wait_for_environment_recovery: 500
