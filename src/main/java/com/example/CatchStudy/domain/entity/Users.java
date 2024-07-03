@@ -1,12 +1,9 @@
 package com.example.CatchStudy.domain.entity;
 
 import com.example.CatchStudy.global.enums.Author;
-import com.example.CatchStudy.global.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,16 +17,6 @@ public class Users {
 
     @Column(name = "user_name")
     private String userName;
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(name = "user_phone")
-    private String userPhone;
-
-    @Column
-    private LocalDateTime birth;
 
     @Column
     @Enumerated(EnumType.STRING)
