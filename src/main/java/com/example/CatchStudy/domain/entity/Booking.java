@@ -28,6 +28,9 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
+    @Column
+    private Integer time;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
@@ -43,4 +46,27 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id")
     private Seat seat;
+
+    private Booking(Integer time, Users user, StudyCafe studyCafe, Seat seat) {
+        this.time = time;
+        this.user = user;
+        this.studyCafe = studyCafe;
+        this.seat = seat;
+    }
+
+    private Booking(LocalDateTime startTime, LocalDateTime endTime, Users user, StudyCafe studyCafe, Room room) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.user = user;
+        this.studyCafe = studyCafe;
+        this.room = room;
+    }
+
+    public static Booking of(Integer time, Users user, StudyCafe studyCafe, Seat seat) {
+        return new Booking(time, user, studyCafe, seat);
+    }
+
+    public static Booking of(LocalDateTime startTime, LocalDateTime endTime, Users user, StudyCafe studyCafe, Room room) {
+        return new Booking(startTime, endTime, user, studyCafe, room);
+    }
 }
