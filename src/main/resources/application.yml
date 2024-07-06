@@ -18,4 +18,4 @@ spring:
     generate-ddl: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: true/open-api.kakaopay.com/online/v1/payment/approve
