@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name="users")
+@Table(name = "users")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,16 +20,6 @@ public class Users {
 
     @Column(name = "user_name")
     private String userName;
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(name = "user_phone")
-    private String userPhone;
-
-    @Column
-    private LocalDateTime birth;
 
     @Column
     @Enumerated(EnumType.STRING)

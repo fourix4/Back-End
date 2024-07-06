@@ -69,4 +69,9 @@ public class Booking {
     public static Booking of(LocalDateTime startTime, LocalDateTime endTime, Users user, StudyCafe studyCafe, Room room) {
         return new Booking(startTime, endTime, user, studyCafe, room);
     }
+
+    public void completeBooking(BookingStatus status, String code) {
+        this.status = status;
+        this.code = code;
+    }
 }

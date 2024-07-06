@@ -12,7 +12,7 @@ public class StudyCafe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long cafeNameId;
+    private long cafeId;
 
     @Column
     private String cafeName;

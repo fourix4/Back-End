@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalControllerAdvice {
 
     @ExceptionHandler(CatchStudyException.class)
-    public ResponseEntity<?> applicationHandler(CatchStudyException e){
-        log.error("Error cause {}",e.toString());
+    public ResponseEntity<?> applicationHandler(CatchStudyException e) {
+        log.error("Error cause {}", e.toString());
         return ResponseEntity.status(e.getErrorCode().getStatus())
-                .body(Response.error(e.getErrorCode().getStatus().toString(),e.getErrorCode().getMessage()));
+                .body(Response.error(e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> applicationHandler(RuntimeException e){
-        log.error("Error cause {}",e.toString());
+    public ResponseEntity<?> applicationHandler(RuntimeException e) {
+        log.error("Error cause {}", e.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Response.error("500",ErrorCode.INTERNAL_SERVER_ERROR.INTERNAL_SERVER_ERROR.getMessage()));
+                .body(Response.error("500", ErrorCode.INTERNAL_SERVER_ERROR.INTERNAL_SERVER_ERROR.getMessage()));
     }
 }

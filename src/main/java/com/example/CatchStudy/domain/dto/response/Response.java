@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Response<T> {
+
     private String code;
     private String message;
     private T result;
-
     public static Response<Void> error(String errorCode, String message) {
         return new Response<>(errorCode, message, null);
     }
