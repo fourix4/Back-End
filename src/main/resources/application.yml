@@ -18,4 +18,10 @@ spring:
     generate-ddl: true
     properties:
       hibernate:
-        format_sql: true/open-api.kakaopay.com/online/v1/payment/approve
+        format_sql: true
+
+kakaopay:
+  secret-key: ${KAKAOPAY_KEY}
+  cid: ${KAKAOPAY_CID}
+  ready-url: ${KAKAOPAY_READY_URL}
+  approve-url: ${KAKAOPAY_APPROVE_URL}
