@@ -21,8 +21,10 @@ public class JwtUtil {
 
     private final Key key;
     private final String AUTHORITIES_KEY = "author";
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
+    public JwtUtil(@Value("${jwt.secret.key}") String secretKey, RefreshTokenRepository refreshTokenRepository) {
+        this.refreshTokenRepository = refreshTokenRepository;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -33,7 +35,7 @@ public class JwtUtil {
         String accessToken = createAccessToken(email, author);
         String refreshToken = createRefreshToken(email, author);
 
-        //TODO refreshToken redis or DB 사용해서 저장
+        refreshTokenRepository.save(refreshToken, email);   // refresh token redis 저장
 
         return new JwtToken(accessToken, refreshToken);
     }
@@ -64,7 +66,7 @@ public class JwtUtil {
     }
 
     // token 검증
-    public void validateToken(String token) {
+    public void validateAccessToken(String token) {
         try {
             Jwts.parserBuilder()
             .setSigningKey(key)
@@ -76,6 +78,10 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("JWT 클레임 문자열이 비어 있습니다.");
         }
+    }
+
+    public boolean validateRefreshToken(String email) {
+        return refreshTokenRepository.find(email) != null;
     }
 
     // token으로 Authentication 객체 만들기

@@ -37,11 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // token 검증
         try {
-            jwtUtil.validateToken(token);
+            jwtUtil.validateAccessToken(token);
             Authentication authentication = jwtUtil.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication); // 검증 후 security context 인증 정보 저장
         } catch (ExpiredJwtException e) {   // 만료 에러 발생
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            String email = e.getClaims().getSubject();
+            // refresh token 존재시
+            if(jwtUtil.validateRefreshToken(email)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+            //TODO refresh token 이 없으면 로그아웃 상태 처리
+
             return;
         }
 
