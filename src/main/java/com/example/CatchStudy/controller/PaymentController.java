@@ -2,6 +2,7 @@ package com.example.CatchStudy.controller;
 
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
+import com.example.CatchStudy.service.BookingService;
 import com.example.CatchStudy.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final BookingService bookingService;
+
 
     @GetMapping("/cancel") //결제 취소
     public void cancel() {
@@ -22,7 +25,7 @@ public class PaymentController {
 
     @GetMapping("/fail/{paymentId}") //결제 실패
     public void fail(@PathVariable("paymentId") Long paymentId) {
-
+        bookingService.deleteBooking(paymentId);
         throw new CatchStudyException(ErrorCode.PAYMENT_NOT_POSSIBLE);
     }
 

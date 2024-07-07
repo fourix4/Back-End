@@ -40,6 +40,6 @@ public class BookingService {
     }
 
     public void deleteBooking(Long paymentId) {
-        Payment payment = null;
+        paymentRepository.deleteByPaymentId(paymentId);
     }
 }
