@@ -24,7 +24,6 @@ public class BookingService {
     private final SeatRepository seatRepository;
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
-    private final PaymentService paymentService;
 
     public Long saveBooking(SeatBookingDto dto) {
         Users user = usersRepository.findByUserId(dto.getUserId()).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));

@@ -36,9 +36,12 @@ public class PaymentService {
     private final SeatRepository seatRepository;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+    private final BookingService bookingService;
 
-    public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId, Long paymentId) {
 
+    public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) {
+
+        Long paymentId = bookingService.saveBooking(dto);
         Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_POSSIBLE));

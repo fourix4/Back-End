@@ -24,16 +24,13 @@ public class BookingController {
 
     @PostMapping("/seats")
     public ResponseEntity<?> bookingSeats(@RequestBody BookingRequestDto bookingRequestDto){
-        Long bookingId = null;
         SeatBookingDto dto = null;
         if(bookingRequestDto.getType()== SeatType.seat){
             dto = bookingRequestDto.toSeatDto();
-            bookingId = bookingService.saveBooking(dto);
         }else if(bookingRequestDto.getType() == SeatType.room){
             dto = bookingRequestDto.toRoomDto();
-            bookingId = bookingService.saveBooking(dto);
         }
-        BookingResponseDto bookingResponseDto = paymentService.kakaoPayReady(dto,Long.valueOf(1),bookingId);
+        BookingResponseDto bookingResponseDto = paymentService.kakaoPayReady(dto,Long.valueOf(1));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(bookingResponseDto);
