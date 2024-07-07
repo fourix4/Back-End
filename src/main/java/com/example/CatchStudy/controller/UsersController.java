@@ -2,6 +2,7 @@ package com.example.CatchStudy.controller;
 
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.service.UsersService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,17 +21,19 @@ public class UsersController {
     private final UsersService usersService;
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        usersService.logout();
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        usersService.logout(token);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body("success");
     }
 
     @PostMapping("/reissuance")
-    public ResponseEntity<?> reissuanceAccessToken() {
+    public ResponseEntity<?> reissuanceAccessToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(usersService.reissuanceAccessToken());
+                .body(usersService.reissuanceAccessToken(token));
     }
 }

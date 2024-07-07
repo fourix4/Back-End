@@ -12,9 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 @Component
 public class JwtUtil {
@@ -35,7 +33,7 @@ public class JwtUtil {
         String accessToken = createAccessToken(email, author);
         String refreshToken = createRefreshToken(email, author);
 
-        refreshTokenRepository.save(refreshToken, email);   // refresh token redis 저장
+        refreshTokenRepository.save(refreshToken, accessToken);   // refresh token redis 저장
 
         return new JwtToken(accessToken, refreshToken);
     }
@@ -80,8 +78,8 @@ public class JwtUtil {
         }
     }
 
-    public boolean validateRefreshToken(String email) {
-        return refreshTokenRepository.find(email) != null;
+    public boolean validateRefreshToken(String accessToken) {
+        return refreshTokenRepository.find(accessToken) != null;
     }
 
     // token으로 Authentication 객체 만들기
@@ -101,5 +99,23 @@ public class JwtUtil {
         User user = new User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(user, accessToken, authorities);
+    }
+
+    public Map<String, String> getEmailandAuthor(String refreshToken) {
+        Map<String, String> map = new HashMap<>();
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody();
+
+        String email = claims.getSubject();
+        String author = (String) claims.get(AUTHORITIES_KEY);
+
+        map.put("email", email);
+        map.put("author", author);
+
+        return map;
     }
 }

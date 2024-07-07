@@ -28,24 +28,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String token = resolveToken(request);
+        String accessToken = resolveToken(request);
 
-        if(token == null) {
+        if(accessToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // token 검증
+        // accessToken 검증
         try {
-            jwtUtil.validateAccessToken(token);
-            Authentication authentication = jwtUtil.getAuthentication(token);
+            jwtUtil.validateAccessToken(accessToken);
+            Authentication authentication = jwtUtil.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication); // 검증 후 security context 인증 정보 저장
         } catch (ExpiredJwtException e) {   // 만료 에러 발생
-            String email = e.getClaims().getSubject();
-            // refresh token 존재시
-            if(jwtUtil.validateRefreshToken(email)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            // refreshToken 존재시
+            if(jwtUtil.validateRefreshToken(accessToken)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-            //TODO refresh token 이 없으면 로그아웃 상태 처리
+            //TODO refresh accessToken 이 없으면 로그아웃 상태 처리
 
             return;
         }

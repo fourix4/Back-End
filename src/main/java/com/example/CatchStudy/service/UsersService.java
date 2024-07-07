@@ -12,6 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,15 +24,18 @@ public class  UsersService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void logout() {
-        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        refreshTokenRepository.delete(users.getEmail());
+    public void logout(String token) {
+        String accessToken = token.substring(7);
+        refreshTokenRepository.delete(accessToken);
         SecurityContextHolder.clearContext(); // 로그아웃 후 보안 컨텍스트 정리
     }
 
-    public AccessTokenResponseDto reissuanceAccessToken() {
-        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        JwtToken jwtToken = jwtUtil.generatedToken(users.getEmail(), String.valueOf(users.getAuthor()));
+    public AccessTokenResponseDto reissuanceAccessToken(String token) {
+        String accessToken = token.substring(7);
+        String refreshToken = refreshTokenRepository.find(accessToken);
+
+        Map<String, String> map = jwtUtil.getEmailandAuthor(refreshToken);
+        JwtToken jwtToken = jwtUtil.generatedToken(map.get("email"), map.get("author"));
 
         return new AccessTokenResponseDto(jwtToken.getAccessToken());
     }

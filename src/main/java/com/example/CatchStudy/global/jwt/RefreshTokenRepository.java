@@ -14,15 +14,15 @@ public class RefreshTokenRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String KEY_PREFIX = "catch-study:";
 
-    public void save(String refreshToken, String email) {
-        redisTemplate.opsForValue().set(KEY_PREFIX + email, refreshToken, 7, TimeUnit.DAYS);   // 7일간 저장 후 삭제
+    public void save(String refreshToken, String accessToken) {
+        redisTemplate.opsForValue().set(KEY_PREFIX + accessToken, refreshToken, 7, TimeUnit.DAYS);   // 7일간 저장 후 삭제
     }
 
-    public String find(String email) {
-        return redisTemplate.opsForValue().get(KEY_PREFIX + email);
+    public String find(String accessToken) {
+        return redisTemplate.opsForValue().get(KEY_PREFIX + accessToken);
     }
 
-    public void delete(String email) {
-        redisTemplate.delete(KEY_PREFIX + email);
+    public void delete(String accessToken) {
+        redisTemplate.delete(KEY_PREFIX + accessToken);
     }
 }
