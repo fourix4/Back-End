@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(token == null) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         // token 검증
