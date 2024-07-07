@@ -22,14 +22,14 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        // 인증된 사용자 정보를 oauth로 캐스팅
+        // 인증된 사용자 정보를 oauth 로 캐스팅
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
         String email = oAuth2User.getAttribute("email");
         String author = oAuth2User.getAuthorities().stream().findFirst().orElseThrow().getAuthority();    // author 가져오기
 
         JwtToken jwtToken = jwtUtil.generatedToken(email, author);
 
-        response.setHeader("Authorization", jwtToken.getAccessToken());
-        //TODO refresh token 처리
+        response.setHeader("Authorization", jwtToken.getAccessToken());  // access token header 반환
     }
 }
