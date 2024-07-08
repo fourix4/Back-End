@@ -31,3 +31,9 @@ spring:
 
   profiles:
     include: oauth
+
+kakaopay:
+  secret-key: ${KAKAOPAY_KEY}
+  cid: ${KAKAOPAY_CID}
+  ready-url: ${KAKAOPAY_READY_URL}
+  approve-url: ${KAKAOPAY_APPROVE_URL}

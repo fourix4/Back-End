@@ -29,4 +29,9 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public void updateRoomStatus(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
 }
