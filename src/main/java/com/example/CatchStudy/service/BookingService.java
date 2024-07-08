@@ -25,8 +25,8 @@ public class BookingService {
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
 
-    public Long saveBooking(SeatBookingDto dto) {
-        Users user = usersRepository.findByUserId(dto.getUserId()).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+    public Long saveBooking(SeatBookingDto dto,Long userId) {
+        Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
         if (dto.getType() == SeatType.seat) {
             Seat seat = seatRepository.findBySeatIdLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));

@@ -39,9 +39,9 @@ public class PaymentService {
     private final BookingService bookingService;
 
 
-    public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) {
+    public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
 
-        Long paymentId = bookingService.saveBooking(dto);
+        Long paymentId = bookingService.saveBooking(dto,userId);
         Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -72,7 +72,7 @@ public class PaymentService {
 
     }
 
-    public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) {
+    public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) { //카카오 페이에 승인 요청
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         Booking booking = payment.getBooking();
         Map<String, String> parameters = new HashMap<>();
