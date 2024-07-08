@@ -9,10 +9,15 @@ import com.example.CatchStudy.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping("/api/studycafes")
@@ -24,6 +29,7 @@ public class BookingController {
 
     @PostMapping("/seats")
     public ResponseEntity<?> bookingSeats(@RequestBody BookingRequestDto bookingRequestDto){
+
         SeatBookingDto dto = null;
         if(bookingRequestDto.getType()== SeatType.seat){
             dto = bookingRequestDto.toSeatDto();

@@ -18,15 +18,16 @@ public class PaymentController {
     private final BookingService bookingService;
 
 
-    @GetMapping("/cancel") //결제 취소
-    public void cancel() {
-
+    @GetMapping("/cancel/{paymentId}") //결제 취소
+    public void cancel(@RequestParam("paymentId")Long paymentId) {
+        bookingService.deleteBooking(paymentId);
+        throw new CatchStudyException(ErrorCode.PAYMENT_CANCELED);
     }
 
     @GetMapping("/fail/{paymentId}") //결제 실패
     public void fail(@PathVariable("paymentId") Long paymentId) {
         bookingService.deleteBooking(paymentId);
-        throw new CatchStudyException(ErrorCode.PAYMENT_NOT_POSSIBLE);
+        throw new CatchStudyException(ErrorCode.PAYMENT_FAIL);
     }
 
     @GetMapping("/success/{userId}/{paymentId}")

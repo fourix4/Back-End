@@ -44,7 +44,7 @@ public class PaymentService {
         Long paymentId = bookingService.saveBooking(dto);
         Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
-        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_POSSIBLE));
+        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", KakaoPayProperties.cid);                                    // 가맹점 코드(테스트용)
         parameters.put("partner_order_id", String.valueOf(paymentId));                    // 주문번호(paymentId)
@@ -54,7 +54,7 @@ public class PaymentService {
         parameters.put("total_amount", String.valueOf(dto.getAmount()));                  // 상품 총액
         parameters.put("tax_free_amount", "0");
         parameters.put("approval_url", "http://localhost:8080/api/payment/success" + "/" + users.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
-        parameters.put("cancel_url", "http://localhost:8080/api/payment/cancel"); // 취소 시 redirect url
+        parameters.put("cancel_url", "http://localhost:8080/api/payment/cancel/"+paymentId); // 취소 시 redirect url
         parameters.put("fail_url", "http://localhost:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
@@ -73,7 +73,7 @@ public class PaymentService {
     }
 
     public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) {
-        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_POSSIBLE));
+        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         Booking booking = payment.getBooking();
         Map<String, String> parameters = new HashMap<>();
 
