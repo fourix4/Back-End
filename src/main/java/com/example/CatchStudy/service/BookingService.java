@@ -29,13 +29,28 @@ public class BookingService {
         Users user = usersRepository.findByUserId(dto.getUserId()).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
         if (dto.getType() == SeatType.seat) {
-            Seat seat = seatRepository.findBySeatId(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
+            Seat seat = seatRepository.findBySeatIdLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
+            if(!seat.getIsAvailable()){
+                throw new CatchStudyException(ErrorCode.SEAT_NOT_AVAILABLE);
+            }
+            if(bookingRepository.existsBySeatSeatId(seat.getSeatId())){
+                throw new CatchStudyException(ErrorCode.SEAT_NOT_SELECT);
+            }
             booking = bookingRepository.save(Booking.of(dto.getTime(), user, seat.getStudyCafe(), seat));
+
         } else if (dto.getType() == SeatType.room) {
-            Room room = roomRepository.findByRoomId(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
+            Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
+            if(!room.getIsAvailable()){
+                throw new CatchStudyException(ErrorCode.ROOM_NOT_AVILABLE);
+            }
+            if(bookingRepository.existsByRoomRoomId(room.getRoomId())){
+                throw new CatchStudyException(ErrorCode.ROOM_NOT_SELECT);
+            }
             booking = bookingRepository.save(Booking.of(dto.getStartTime(), dto.getEndTime(), user, room.getStudyCafe(), room));
+
         }
         return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready)).getPaymentId();
+
     }
 
     public void deleteBooking(Long paymentId) {
