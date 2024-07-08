@@ -44,8 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // refreshToken 존재시
             if(jwtUtil.validateRefreshToken(accessToken)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-            //TODO refresh accessToken 이 없으면 로그아웃 상태 처리
-
             return;
         }
 

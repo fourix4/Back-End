@@ -2,6 +2,7 @@ package com.example.CatchStudy.global.oauth;
 
 import com.example.CatchStudy.global.jwt.JwtToken;
 import com.example.CatchStudy.global.jwt.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,12 +13,15 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -30,6 +34,17 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
         JwtToken jwtToken = jwtUtil.generatedToken(email, author);
 
-        response.setHeader("Authorization", jwtToken.getAccessToken());  // access token header 반환
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("code", 200);
+        responseData.put("message", "success");
+
+        Map<String, String> data = new HashMap<>();
+        data.put("accessToken", jwtToken.getAccessToken());
+        responseData.put("data", data);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        response.getWriter().write(objectMapper.writeValueAsString(responseData));
     }
 }
