@@ -67,4 +67,37 @@ public class StudyCafeService {
         List<MultipartFile> multipleImages = studyCafeRequestDto.getMultipleImages();   // 카페 이미지
         cafeImageService.saveCafeImages(thumbnail, seatChart, multipleImages, savedStudyCafe);
     }
+
+    @Transactional
+    public void updateStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
+        long userId = usersService.getCurrentUserId();
+        LocalTime openingHours = LocalTime.parse(studyCafeRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
+        LocalTime closedHours = LocalTime.parse(studyCafeRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
+        StudyCafe studyCafe = studyCafeRepository.findByUser_UserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+        studyCafe.update(studyCafeRequestDto, openingHours, closedHours);
+
+        usageFeeService.deleteUsageFee(studyCafe.getCafeId());
+        List<UsageFeeRequestDto> usageFees = studyCafeRequestDto.getUsageFee();
+        for(UsageFeeRequestDto usageFeeRequestDto : usageFees) {
+            usageFeeService.saveUsageFee(usageFeeRequestDto, studyCafe);
+        }
+
+        roomService.deleteRoom(studyCafe.getCafeId());
+        List<RoomsRequestDto> rooms = studyCafeRequestDto.getRoomInfo().getRooms();
+        long cancelAvailableTime = studyCafeRequestDto.getRoomInfo().getCancelAvailableTime();
+        for(RoomsRequestDto roomsRequestDto : rooms) {
+            roomService.saveRoom(roomsRequestDto, studyCafe, cancelAvailableTime);
+        }
+
+        seatService.deleteSeat(studyCafe.getCafeId());
+        for(int i = 1; i <= studyCafeRequestDto.getSeats(); i++) {
+            seatService.saveSeat(Integer.toString(i), studyCafe);
+        }
+
+        MultipartFile thumbnail = studyCafeRequestDto.getTitleImage();
+        MultipartFile seatChart = studyCafeRequestDto.getSeatChartImage();
+        List<MultipartFile> multipleImages = studyCafeRequestDto.getMultipleImages();
+        cafeImageService.deleteCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
+        cafeImageService.saveCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
+    }
 }

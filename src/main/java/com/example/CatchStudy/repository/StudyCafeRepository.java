@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface StudyCafeRepository extends JpaRepository<StudyCafe, Long> {
 
     Optional<StudyCafe> findByCafeId(Long cafeId);
-
+    Optional<StudyCafe> findByUser_UserId(long userId);
 }

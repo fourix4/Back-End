@@ -17,8 +17,14 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
+    @Transactional
     public void saveRoom(RoomsRequestDto roomsRequestDto, StudyCafe studyCafe, long cancelAvailableTime) {
         Room room = new Room(roomsRequestDto, studyCafe, cancelAvailableTime);
         roomRepository.save(room);
+    }
+
+    @Transactional
+    public void deleteRoom(long cafeId) {
+        roomRepository.deleteAllByStudyCafe_CafeId(cafeId);
     }
 }

@@ -6,6 +6,7 @@ import com.example.CatchStudy.service.StudyCafeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,8 +19,15 @@ public class StudyCafeController {
     private final StudyCafeService studyCafeService;
 
     @PostMapping("/manager")
-    public ResponseEntity<?> createStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
+    public ResponseEntity<?> saveStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
         studyCafeService.saveStudyCafe(studyCafeRequestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success());
+    }
+
+    @PatchMapping("/manager")
+    public ResponseEntity<?> updateStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
+        studyCafeService.updateStudyCafe(studyCafeRequestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.success());
     }

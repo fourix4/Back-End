@@ -14,4 +14,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query("select r from Room r where r.roomId = :roomId ")
     Optional<Room> findByRoomIdLock(Long roomId);
 
+    void deleteAllByStudyCafe_CafeId(long cafeId);
 }

@@ -15,5 +15,5 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Query("select s from Seat s where s.seatId = :seatId")
     Optional<Seat> findBySeatIdLock(@Param("seatId")Long seatId);
 
-
+    void deleteAllByStudyCafe_CafeId(long cafeId);
 }

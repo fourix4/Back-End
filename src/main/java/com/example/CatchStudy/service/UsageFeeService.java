@@ -18,8 +18,14 @@ public class UsageFeeService {
 
     private final UsageFeeRepository usageFeeRepository;
 
+    @Transactional
     public void saveUsageFee(UsageFeeRequestDto usageFeeRequestDto, StudyCafe studyCafe) {
         UsageFee usageFee = new UsageFee(usageFeeRequestDto, studyCafe);
         usageFeeRepository.save(usageFee);
+    }
+
+    @Transactional
+    public void deleteUsageFee(long cafeId) {
+        usageFeeRepository.deleteAllByStudyCafe_CafeId(cafeId);
     }
 }

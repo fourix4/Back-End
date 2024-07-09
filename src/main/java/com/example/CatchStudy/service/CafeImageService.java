@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,5 +36,24 @@ public class CafeImageService {
             CafeImage cafeImage = new CafeImage(ImageType.cafeImage, imageFileUrl, studyCafe);
             cafeImageRepository.save(cafeImage);
         }
+    }
+
+    public void deleteCafeImages(MultipartFile thumbnail, MultipartFile seatChart, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
+        List<CafeImage> images = cafeImageRepository.findAllByStudyCafe_CafeId(studyCafe.getCafeId());
+        String thumbnailUrl = "";
+        String seatChartUrl = "";
+        List<String> multipleImageUrls = new ArrayList<>();
+
+        for(CafeImage image : images) {
+            switch (image.getImageType()) {
+                case thumbnail -> thumbnailUrl = image.getCafeImage();
+                case seatingChart -> seatChartUrl = image.getCafeImage();
+                case cafeImage ->  multipleImageUrls.add(image.getCafeImage());
+            }
+        }
+
+        s3Service.deleteImageFromS3(thumbnailUrl);
+        s3Service.deleteImageFromS3(seatChartUrl);
+        for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
     }
 }

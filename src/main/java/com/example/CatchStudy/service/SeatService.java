@@ -20,4 +20,8 @@ public class SeatService {
         Seat seat = new Seat(seatNumber, studyCafe);
         seatRepository.save(seat);
     }
+
+    public void deleteSeat(long cafeId) {
+        seatRepository.deleteAllByStudyCafe_CafeId(cafeId);
+    }
 }

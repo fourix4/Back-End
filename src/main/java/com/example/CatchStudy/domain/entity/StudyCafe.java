@@ -60,4 +60,16 @@ public class StudyCafe {
         this.cafePhone = studyCafeRequestDto.getCafePhone();
         this.user = user;
     }
+
+    public void update(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours) {
+        this.cafeName = studyCafeRequestDto.getCafeName();
+        this.address = studyCafeRequestDto.getAddress().toAddress();
+        this.city = studyCafeRequestDto.getAddress().getCity();
+        this.country = studyCafeRequestDto.getAddress().getCountry();
+        this.town = studyCafeRequestDto.getAddress().getTown();
+        this.openingHours = openingHours;
+        this.closedHours = closedHours;
+        this.closedDay = studyCafeRequestDto.getClosedDay();
+        this.cafePhone = studyCafeRequestDto.getCafePhone();
+    }
 }
