@@ -8,11 +8,12 @@ import com.example.CatchStudy.global.jwt.RefreshTokenRepository;
 import com.example.CatchStudy.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -21,6 +22,7 @@ import java.util.Map;
 public class  UsersService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UsersRepository usersRepository;
     private final JwtUtil jwtUtil;
 
     @Transactional
@@ -38,5 +40,16 @@ public class  UsersService {
         JwtToken jwtToken = jwtUtil.generatedToken(map.get("email"), map.get("author"));
 
         return new AccessTokenResponseDto(jwtToken.getAccessToken());
+    }
+
+    public long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = "";
+
+        if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
+
+        Users users = usersRepository.findByEmail(email);
+
+        return users.getUserId();
     }
 }

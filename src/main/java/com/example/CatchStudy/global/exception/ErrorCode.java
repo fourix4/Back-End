@@ -20,6 +20,11 @@ public enum ErrorCode {
     PAYMENT_CANCELED(HttpStatus.NOT_ACCEPTABLE,"결제가 취소되었습니다"),
     PAYMENT_FAIL(HttpStatus.NOT_ACCEPTABLE,"결제가 실패되었습니다"),
     DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"데이터베이스 오류입니다"),
+    //S3 Error
+    EMPTY_FILE_EXCEPTION(HttpStatus.BAD_REQUEST, "파일이 없습니다."),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드 중 에러가 발생했습니다."),
+    INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "잘못된 확장자입니다."),
+    IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제 중 에러가 발생했습니다.")
     ;
 
     private HttpStatus status;

@@ -1,5 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.RoomsRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,11 @@ public class Room {
         this.isAvailable = isAvailable;
     }
 
+    public Room(RoomsRequestDto roomsRequestDto, StudyCafe studyCafe, long cancelAvailableTime) {
+        this.roomName = roomsRequestDto.getRoomName();
+        this.capacity = roomsRequestDto.getCapacity();
+        this.isAvailable = false;
+        this.cancelAvailableTime = cancelAvailableTime;
+        this.studyCafe = studyCafe;
+    }
 }

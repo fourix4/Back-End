@@ -1,5 +1,6 @@
 package com.example.CatchStudy.controller;
 
+import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ public class UsersController {
         usersService.logout(token);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body("success");
+                .body(Response.success());
     }
 
     @PostMapping("/reissuance")
@@ -34,6 +35,6 @@ public class UsersController {
         String token = request.getHeader("Authorization");
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(usersService.reissuanceAccessToken(token));
+                .body(Response.success(usersService.reissuanceAccessToken(token)));
     }
 }

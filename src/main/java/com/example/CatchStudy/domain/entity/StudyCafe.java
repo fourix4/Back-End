@@ -1,8 +1,11 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.StudyCafeRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalTime;
 
 @Getter
 @Entity
@@ -29,8 +32,11 @@ public class StudyCafe {
     @Column
     private String town;
 
-    @Column(columnDefinition = "TEXT")
-    private String openingHours;
+    @Column
+    private LocalTime openingHours;
+
+    @Column
+    private LocalTime closedHours;
 
     @Column(columnDefinition = "TEXT")
     private String closedDay;
@@ -41,4 +47,17 @@ public class StudyCafe {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
+
+    public StudyCafe(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours, Users user) {
+        this.cafeName = studyCafeRequestDto.getCafeName();
+        this.address = studyCafeRequestDto.getAddress().toAddress();
+        this.city = studyCafeRequestDto.getAddress().getCity();
+        this.country = studyCafeRequestDto.getAddress().getCountry();
+        this.town = studyCafeRequestDto.getAddress().getTown();
+        this.openingHours = openingHours;
+        this.closedHours = closedHours;
+        this.closedDay = studyCafeRequestDto.getClosedDay();
+        this.cafePhone = studyCafeRequestDto.getCafePhone();
+        this.user = user;
+    }
 }
