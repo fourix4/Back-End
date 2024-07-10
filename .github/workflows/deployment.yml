@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest # 3 실행 환경 지정
 
-    #4 실행스텝지정
+    # 4 실행 스텝 지정
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,33 +26,34 @@ jobs:
         with:
           files: ./src/main/resources/application.yml
         env:
-              spring.datasource.url: ${{ secrets.DB_URL }}
-              spring.datasource.username: ${{ secrets.DB_USER }}
-              spring.datasource.password: ${{ secrets.DB_PASSWORD }}
-              jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
-              spring.data.redis.host: ${{ secrets.REDIS_HOST }}
-              kakaopay.secret-key: ${{ secrets.KAKAOPAY_KEY }}
-              kakaopay.cid: ${{ secrets.KAKAOPAY_CID }}
-              kakaopay.ready-url: ${{ secrets.KAKAOPAY_READY_URL }}
-              kakaopay.approve-url: ${{ secrets.KAKAOPAY_APPROVE_URL }}
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.username: ${{ secrets.DB_USER }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD }}
+          jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
+          spring.data.redis.host: ${{ secrets.REDIS_HOST }}
+          kakaopay.secret-key: ${{ secrets.KAKAOPAY_KEY }}
+          kakaopay.cid: ${{ secrets.KAKAOPAY_CID }}
+          kakaopay.ready-url: ${{ secrets.KAKAOPAY_READY_URL }}
+          kakaopay.approve-url: ${{ secrets.KAKAOPAY_APPROVE_URL }}
 
       - name: Set Environment for application-oauth.yml
         uses: microsoft/variable-substitution@v1
         with:
           files: ./src/main/resources/application-oauth.yml
         env:
-              spring.datasource.url: ${{ secrets.DB_URL }}
-              spring.datasource.username: ${{ secrets.DB_USER }}
-              spring.datasource.password: ${{ secrets.DB_PASSWORD }}
-              jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
-              spring.data.redis.host: ${{ secrets.REDIS_HOST }}
-              kakaopay.secret-key: ${{ secrets.KAKAOPAY_KEY }}
-              kakaopay.cid: ${{ secrets.KAKAOPAY_CID }}
-              kakaopay.ready-url: ${{ secrets.KAKAOPAY_READY_URL }}
-              kakaopay.approve-url: ${{ secrets.KAKAOPAY_APPROVE_URL }}
-              spring.security.oauth2.client.registration.client-id: ${{ secrets.KAKAO_CLIENT_ID }}
-              spring.security.oauth2.client.registration.redirect-uri: ${{ secrets.KAKAO_REDIRECT_URI }}
-              
+          SYSTEM_DEBUG: true
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.username: ${{ secrets.DB_USER }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD }}
+          jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
+          spring.data.redis.host: ${{ secrets.REDIS_HOST }}
+          kakaopay.secret-key: ${{ secrets.KAKAOPAY_KEY }}
+          kakaopay.cid: ${{ secrets.KAKAOPAY_CID }}
+          kakaopay.ready-url: ${{ secrets.KAKAOPAY_READY_URL }}
+          kakaopay.approve-url: ${{ secrets.KAKAOPAY_APPROVE_URL }}
+          spring.security.oauth2.client.registration.client-id: ${{ secrets.KAKAO_CLIENT_ID }}
+          spring.security.oauth2.client.registration.redirect-uri: ${{ secrets.KAKAO_REDIRECT_URI }}
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -66,11 +67,9 @@ jobs:
           format: YYYY-MM-DDTHH-mm-ss
           utcOffset: "+09:00"
 
-      # 3 catchstudy 배포용 패키지 경로 저장
       - name: catchstudy Set artifact
         run: echo "artifact=$(ls ./build/libs | grep -v 'plain')" >> $GITHUB_ENV
 
-      # 4 빈스토크 배포
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -78,7 +77,7 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
           application_name: catch-study
           environment_name: Catch-study-env
-          version_label: catch-study-${{steps.current-time.outputs.formattedTime}}
+          version_label: catch-study-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
-          deployment_package: ./build/libs/${{env.artifact}}
+          deployment_package: ./build/libs/${{ env.artifact }}
           wait_for_environment_recovery: 500
