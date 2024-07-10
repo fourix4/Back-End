@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class GlobalControllerAdvice {
-
     @ExceptionHandler(CatchStudyException.class)
     public ResponseEntity<?> applicationHandler(CatchStudyException e) {
         log.error("Error cause {}", e.toString());
         return ResponseEntity.status(e.getErrorCode().getStatus())
-                .body(Response.error(e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage()));
+                .body(Response.error(String.valueOf(e.getErrorCode().getStatus().value()), e.getErrorCode().getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -25,10 +24,12 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Response.error("500", ErrorCode.INTERNAL_SERVER_ERROR.INTERNAL_SERVER_ERROR.getMessage()));
     }
+
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<?> applicationHandler(DataAccessException e) {
         log.error("Error cause {}", e.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Response.error("500", "DATABASE ERROR"));
     }
+
 }
