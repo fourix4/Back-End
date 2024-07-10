@@ -1,6 +1,7 @@
 package com.example.CatchStudy.service;
 
 import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
+import com.example.CatchStudy.domain.dto.response.UsersResponseDto;
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.global.jwt.JwtToken;
 import com.example.CatchStudy.global.jwt.JwtUtil;
@@ -8,11 +9,12 @@ import com.example.CatchStudy.global.jwt.RefreshTokenRepository;
 import com.example.CatchStudy.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -21,6 +23,7 @@ import java.util.Map;
 public class  UsersService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UsersRepository usersRepository;
     private final JwtUtil jwtUtil;
 
     @Transactional
@@ -38,5 +41,32 @@ public class  UsersService {
         JwtToken jwtToken = jwtUtil.generatedToken(map.get("email"), map.get("author"));
 
         return new AccessTokenResponseDto(jwtToken.getAccessToken());
+    }
+
+    public long getCurrentUserId() {
+        String email = getEmail();
+        Users users = usersRepository.findByEmail(email);
+
+        return users.getUserId();
+    }
+
+    public void deleteUser() {
+        String email = getEmail();
+        usersRepository.deleteByEmail(email);
+    }
+
+    public UsersResponseDto getUser() {
+        String email = getEmail();
+        Users user = usersRepository.findByEmail(email);
+        return new UsersResponseDto(user);
+    }
+
+    private String getEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = "";
+
+        if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
+
+        return email;
     }
 }

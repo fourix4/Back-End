@@ -1,5 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.StudyCafeRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,4 +47,29 @@ public class StudyCafe {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
+
+    public StudyCafe(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours, Users user) {
+        this.cafeName = studyCafeRequestDto.getCafeName();
+        this.address = studyCafeRequestDto.getAddress().toAddress();
+        this.city = studyCafeRequestDto.getAddress().getCity();
+        this.country = studyCafeRequestDto.getAddress().getCountry();
+        this.town = studyCafeRequestDto.getAddress().getTown();
+        this.openingHours = openingHours;
+        this.closedHours = closedHours;
+        this.closedDay = studyCafeRequestDto.getClosedDay();
+        this.cafePhone = studyCafeRequestDto.getCafePhone();
+        this.user = user;
+    }
+
+    public void update(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours) {
+        this.cafeName = studyCafeRequestDto.getCafeName();
+        this.address = studyCafeRequestDto.getAddress().toAddress();
+        this.city = studyCafeRequestDto.getAddress().getCity();
+        this.country = studyCafeRequestDto.getAddress().getCountry();
+        this.town = studyCafeRequestDto.getAddress().getTown();
+        this.openingHours = openingHours;
+        this.closedHours = closedHours;
+        this.closedDay = studyCafeRequestDto.getClosedDay();
+        this.cafePhone = studyCafeRequestDto.getCafePhone();
+    }
 }

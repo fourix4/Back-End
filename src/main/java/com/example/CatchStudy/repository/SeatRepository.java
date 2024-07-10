@@ -15,7 +15,16 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Seat s where s.seatId = :seatId")
-    Optional<Seat> findBySeatIdLock(@Param("seatId")Long seatId);
+    Optional<Seat> findBySeatIdLock(@Param("seatId") Long seatId);
+
     List<Seat> findAllByStudyCafeCafeId(Long cafeId);
+
+    void deleteAllByStudyCafe_CafeId(long cafeId);
+
+    @Query("SELECT COUNT(s) FROM Seat s WHERE s.studyCafe.cafeId = :cafeId")
+    int countSeatByStudyCafeId(@Param("cafeId") Long cafeId);
+
+    @Query("SELECT COUNT(s) FROM Seat s WHERE s.studyCafe.cafeId = :cafeId AND s.isAvailable = true")
+    int countAvailableSeatsByStudyCafeId(@Param("cafeId") Long cafeId);
 
 }
