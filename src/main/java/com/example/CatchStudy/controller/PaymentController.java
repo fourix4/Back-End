@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -18,19 +18,19 @@ public class PaymentController {
     private final BookingService bookingService;
 
 
-    @GetMapping("/cancel/{paymentId}") //결제 취소
-    public void cancel(@RequestParam("paymentId")Long paymentId) {
+    @GetMapping("/payment/cancel/{paymentId}") //결제 취소
+    public void canceled(@PathVariable("paymentId")Long paymentId) {
         bookingService.deleteBooking(paymentId);
         throw new CatchStudyException(ErrorCode.PAYMENT_CANCELED);
     }
 
-    @GetMapping("/fail/{paymentId}") //결제 실패
+    @GetMapping("/payment/fail/{paymentId}") //결제 실패
     public void fail(@PathVariable("paymentId") Long paymentId) {
         bookingService.deleteBooking(paymentId);
         throw new CatchStudyException(ErrorCode.PAYMENT_FAIL);
     }
 
-    @GetMapping("/success/{userId}/{paymentId}")
+    @GetMapping("/payment/success/{userId}/{paymentId}")
     public ResponseEntity<?> afterPayRequest(@RequestParam("pg_token") String pgToken, @PathVariable("userId") Long userId, @PathVariable("paymentId") Long paymentId) { //결제 성공
         return ResponseEntity.status(HttpStatus.OK)
                 .body(paymentService.kakaoPayApprove(pgToken, userId, paymentId));
