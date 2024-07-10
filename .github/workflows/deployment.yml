@@ -39,7 +39,7 @@ jobs:
       - name: Set Environment for application-oauth.yml
         uses: microsoft/variable-substitution@v1
         with:
-          files: ./src/main/resources/application.yml
+          files: ./src/main/resources/application-oauth.yml
         env:
               KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
               KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
