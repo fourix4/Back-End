@@ -1,34 +1,21 @@
 package com.example.CatchStudy.controller;
 
-import com.example.CatchStudy.domain.dto.request.StudyCafeRequestDto;
-import com.example.CatchStudy.domain.dto.response.Response;
+import com.example.CatchStudy.domain.dto.response.StudyCafeResponseDto;
 import com.example.CatchStudy.service.StudyCafeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/studycafe")
 @RequiredArgsConstructor
 public class StudyCafeController {
 
     private final StudyCafeService studyCafeService;
 
-    @PostMapping("/manager")
-    public ResponseEntity<?> saveStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
-        studyCafeService.saveStudyCafe(studyCafeRequestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.success());
-    }
+    @GetMapping("/{cafe_id}")
+    public StudyCafeResponseDto getStudyCafe() {
 
-    @PatchMapping("/manager")
-    public ResponseEntity<?> updateStudyCafe(StudyCafeRequestDto studyCafeRequestDto) {
-        studyCafeService.updateStudyCafe(studyCafeRequestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.success());
     }
 }
