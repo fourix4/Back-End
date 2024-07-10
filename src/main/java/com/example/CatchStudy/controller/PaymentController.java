@@ -19,8 +19,14 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final BookingService bookingService;
 
+    @PatchMapping("/booking/rooms/cancel")
+    public Response<Void> cancel(@RequestBody RoomBookingCancelRequestDto requestDto) { //스터디룸 예약 취소
+        paymentService.kakaoCancel(requestDto.getBooking_id());
+        return Response.success();
+    }
+
     @GetMapping("/payment/cancel/{paymentId}") //결제 중 취소
-    public void canceled(@PathVariable("paymentId")Long paymentId) {
+    public void canceled(@PathVariable("paymentId") Long paymentId) {
         bookingService.deleteBooking(paymentId);
         throw new CatchStudyException(ErrorCode.PAYMENT_CANCELED);
     }
