@@ -17,4 +17,7 @@ public interface CafeImageRepository extends JpaRepository<CafeImage, Long> {
 
     @Query("SELECT ci.cafeImage FROM CafeImage ci WHERE ci.studyCafe.cafeId = :cafeId AND ci.imageType = 'seatingChart'")
     String findSeatingChartUrlByStudyCafeId(@Param("cafeId") Long cafeId);
+
+    @Query("SELECT ci.cafeImage FROM CafeImage ci WHERE ci.studyCafe.cafeId = :cafeId AND ci.imageType = 'thumbnail'")
+    String findThumbnailUrlByStudyCafeId(@Param("cafeId") Long cafeId);
 }

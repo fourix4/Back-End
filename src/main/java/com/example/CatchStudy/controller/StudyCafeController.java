@@ -23,4 +23,14 @@ public class StudyCafeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.success(studyCafeService.getStudyCafe(cafeId)));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchStudyCafes(@RequestParam(required = false) String city,
+                                             @RequestParam(required = false) String country,
+                                             @RequestParam(required = false) String town,
+                                             @RequestParam(defaultValue = "1") int page) {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success(studyCafeService.searchStudyCafes(city, country, town, page)));
+    }
 }
