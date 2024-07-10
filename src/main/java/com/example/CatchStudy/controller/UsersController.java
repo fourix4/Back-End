@@ -27,7 +27,12 @@ public class UsersController {
     private String kakaoRedirectUri;
 
     @GetMapping("/login/kakao")
-    public void kakaoLogin(HttpServletResponse response) throws IOException {
+    public void kakaoLoginGet(HttpServletResponse response) throws IOException {
+        response.sendRedirect(kakaoRedirectUri);
+    }
+
+    @PostMapping("/login/kakao")
+    public void kakaoLoginPost(HttpServletResponse response) throws IOException {
         response.sendRedirect(kakaoRedirectUri);
     }
 
