@@ -24,4 +24,10 @@ public class CafeImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public CafeImage(ImageType imageType, String cafeImage, StudyCafe studyCafe) {
+        this.imageType = imageType;
+        this.cafeImage = cafeImage;
+        this.studyCafe = studyCafe;
+    }
 }
