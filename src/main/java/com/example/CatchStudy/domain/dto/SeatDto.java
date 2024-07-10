@@ -8,15 +8,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SeatDto {
 
-    private Long seatId;
-    private StudyCafeDto studyCafeDto;
-    private String seatNumber;
+    private Long seat_id;
+    private String seat_number;
     private Boolean isAvailable;
 
     public static SeatDto from(Seat entity) {
         return new SeatDto(
                 entity.getSeatId(),
-                StudyCafeDto.from(entity.getStudyCafe()),
                 entity.getSeatNumber(),
                 entity.getIsAvailable()
         );

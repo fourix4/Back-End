@@ -1,8 +1,12 @@
 package com.example.CatchStudy.service;
 
+import com.example.CatchStudy.domain.dto.RoomDto;
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
+import com.example.CatchStudy.domain.dto.SeatDto;
 import com.example.CatchStudy.domain.dto.response.BookingResponseDto;
+import com.example.CatchStudy.domain.dto.response.SeatingChartResponseDto;
 import com.example.CatchStudy.domain.entity.*;
+import com.example.CatchStudy.global.enums.ImageType;
 import com.example.CatchStudy.global.enums.PaymentStatus;
 import com.example.CatchStudy.global.enums.SeatType;
 import com.example.CatchStudy.global.exception.CatchStudyException;
@@ -16,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,6 +36,10 @@ public class BookingService {
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
+
+    private final StudyCafeRepository studyCafeRepository;
+    private final CafeImageRepository cafeImageRepository;
+
 
 
     public Long saveBooking(SeatBookingDto dto, Long userId) {
@@ -69,6 +80,27 @@ public class BookingService {
         return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready)).getPaymentId();
 
     }
+
+    public SeatingChartResponseDto showSeatingChart(Long cafeId){
+        StudyCafe studyCafe = studyCafeRepository.findByCafeId(cafeId).orElseThrow(()->new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
+        String seatingChart = cafeImageRepository.findByStudyCafeCafeIdAndImageType(cafeId, ImageType.seatingChart).getCafeImage(); // 좌석 배치도 url
+        List<SeatDto> seats = seatRepository.findAllByStudyCafeCafeId(cafeId) //좌석 정보
+                .stream()
+                .sorted(Comparator.comparing(Seat::getSeatId))
+                .map(SeatDto::from)
+                .collect(Collectors.toList());
+
+        List<RoomDto> rooms = roomRepository.findAllByStudyCafeCafeId(cafeId) //스터디룸 정보
+                .stream().sorted(Comparator.comparing(Room::getRoomId))
+                .map(RoomDto::from)
+                .collect(Collectors.toList());
+        return SeatingChartResponseDto.toResponseDto(
+                seatingChart,
+                seats,
+                rooms
+        );
+    }
+
 
     public void deleteBooking(Long paymentId) {
         paymentRepository.deleteByPaymentId(paymentId);

@@ -3,6 +3,9 @@ package com.example.CatchStudy.controller;
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
 import com.example.CatchStudy.domain.dto.request.BookingRequestDto;
 import com.example.CatchStudy.domain.dto.response.BookingResponseDto;
+import com.example.CatchStudy.domain.dto.response.Response;
+import com.example.CatchStudy.domain.dto.response.Result;
+import com.example.CatchStudy.domain.dto.response.SeatingChartResponseDto;
 import com.example.CatchStudy.global.enums.SeatType;
 import com.example.CatchStudy.repository.UsersRepository;
 import com.example.CatchStudy.service.BookingService;
@@ -16,10 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -45,6 +45,11 @@ public class BookingController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(bookingResponseDto);
+    }
+
+    @GetMapping("/{cafe_id}/seatingchart")
+    public Response<SeatingChartResponseDto> seatingChart(@PathVariable("cafe_id")Long cafeId){
+        return Response.success(Result.toResponseDto(bookingService.showSeatingChart(cafeId)));
     }
 
 }
