@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SeatBookingDto {
 
-    Long userId;
     Long cafeId;
     Long seatId;
     Integer time;
@@ -21,11 +20,11 @@ public class SeatBookingDto {
     SeatType type;
     LocalDateTime startTime;
 
-    public static SeatBookingDto of(Long userId, Long cafeId, Long seatId, Integer time, Integer amount, PaymentType paymentType, SeatType type) {
-        return new SeatBookingDto(userId, cafeId, seatId, time, amount, paymentType, null, type, null);
+    public static SeatBookingDto of(Long cafeId, Long seatId, Integer time, Integer amount, PaymentType paymentType, SeatType type) {
+        return new SeatBookingDto(cafeId, seatId, time, amount, paymentType, null, type, null);
     }
 
-    public static SeatBookingDto of(Long userId, Long cafeId, Integer time, Integer amount, PaymentType paymentType, Long roomId, SeatType type, LocalDateTime startTime) {
-        return new SeatBookingDto(userId, cafeId, null, time, amount, paymentType, roomId, type, startTime);
+    public static SeatBookingDto of(Long cafeId, Integer time, Integer amount, PaymentType paymentType, Long roomId, SeatType type, LocalDateTime startTime) {
+        return new SeatBookingDto(cafeId, null, time, amount, paymentType, roomId, type, startTime);
     }
 }
