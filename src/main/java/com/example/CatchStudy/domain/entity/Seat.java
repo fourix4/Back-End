@@ -23,4 +23,9 @@ public class Seat {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public void updateSeatStatus(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
 }
