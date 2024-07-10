@@ -3,11 +3,9 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
 import com.example.CatchStudy.domain.dto.response.BookingResponseDto;
 import com.example.CatchStudy.domain.dto.response.KakaoApproveResponseDto;
+import com.example.CatchStudy.domain.dto.response.KakaoCancelResponseDto;
 import com.example.CatchStudy.domain.dto.response.KakaoReadyResponseDto;
-import com.example.CatchStudy.domain.entity.Booking;
-import com.example.CatchStudy.domain.entity.Payment;
-import com.example.CatchStudy.domain.entity.StudyCafe;
-import com.example.CatchStudy.domain.entity.Users;
+import com.example.CatchStudy.domain.entity.*;
 import com.example.CatchStudy.global.enums.BookingStatus;
 import com.example.CatchStudy.global.enums.PaymentStatus;
 import com.example.CatchStudy.global.exception.CatchStudyException;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -37,11 +36,11 @@ public class PaymentService {
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
-
+    private final BookedRoomInfoRepository bookedRoomInfoRepository;
 
     public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
 
-        Long paymentId = bookingService.saveBooking(dto,userId);
+        Long paymentId = bookingService.saveBooking(dto, userId);
         Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -54,7 +53,7 @@ public class PaymentService {
         parameters.put("total_amount", String.valueOf(dto.getAmount()));                  // 상품 총액
         parameters.put("tax_free_amount", "0");
         parameters.put("approval_url", "http://localhost:8080/api/payment/success" + "/" + users.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
-        parameters.put("cancel_url", "http://localhost:8080/api/payment/cancel/"+paymentId); // 취소 시 redirect url
+        parameters.put("cancel_url", "http://localhost:8080/api/payment/cancel/" + paymentId); // 취소 시 redirect url
         parameters.put("fail_url", "http://localhost:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
@@ -73,6 +72,7 @@ public class PaymentService {
     }
 
     public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) { //카카오 페이에 승인 요청
+
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         Booking booking = payment.getBooking();
         Map<String, String> parameters = new HashMap<>();
@@ -97,14 +97,49 @@ public class PaymentService {
         String code = makeCode();
         booking.completeBooking(BookingStatus.beforeEnteringRoom, makeCode());
         payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve, kakaoApprove.getAmount().getTotal());
-        if (booking.getRoom() == null) {
+        if (booking.getBookedRoomInfo() == null) {
             booking.getSeat().updateSeatStatus(false);
-        } else {
-            booking.getRoom().updateRoomStatus(false);
         }
 
         return kakaoApprove;
 
+    }
+
+    public void kakaoCancel(Long bookingId) {
+
+        Payment payment = paymentRepository.findByBookingBookingId(bookingId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
+        BookedRoomInfo bookedRoomInfo = payment.getBooking().getBookedRoomInfo();
+        Room room = bookedRoomInfo.getRoom();
+        LocalDateTime maxPossibleTime = null;
+        if (room.getCancelAvailableTime() == null) {
+            maxPossibleTime = bookedRoomInfo.getBookingDateStartTime();
+        } else {
+            maxPossibleTime = bookedRoomInfo.getBookingDateStartTime().minusMinutes(room.getCancelAvailableTime());
+        }
+        if (LocalDateTime.now().isAfter(maxPossibleTime)) { // 취소 가능한 시간을 넘었을 경우
+            throw new CatchStudyException(ErrorCode.CANCEL_POSSIBLE_TIME_PASSED);
+        }
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", KakaoPayProperties.cid);
+        parameters.put("tid", payment.getTid());
+        parameters.put("cancel_amount", String.valueOf(payment.getAmount()));
+        parameters.put("cancel_tax_free_amount", "0");
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
+        RestTemplate restTemplate = new RestTemplate();
+
+        KakaoCancelResponseDto kakaoCancel = restTemplate.postForObject(
+                KakaoPayProperties.cancelUrl,
+                requestEntity,
+                KakaoCancelResponseDto.class
+        );
+
+        // 결제 환불 후 예약 스터디룸 정보 삭제
+        payment.getBooking().cancelBooking(BookingStatus.canceled);
+        payment.cancelPayment(PaymentStatus.cancel);
+        payment.getBooking().deleteRoomInfo();
+        bookedRoomInfoRepository.delete(bookedRoomInfo);
     }
 
     private HttpHeaders getHeaders() {

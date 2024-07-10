@@ -13,6 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Service
 @Slf4j
 @Transactional
@@ -24,8 +28,10 @@ public class BookingService {
     private final SeatRepository seatRepository;
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
+    private final BookedRoomInfoRepository bookedRoomInfoRepository;
 
-    public Long saveBooking(SeatBookingDto dto,Long userId) {
+
+    public Long saveBooking(SeatBookingDto dto, Long userId) {
         Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
         if (dto.getType() == SeatType.seat) {
@@ -36,17 +42,28 @@ public class BookingService {
             if(bookingRepository.existsBySeatSeatId(seat.getSeatId())){
                 throw new CatchStudyException(ErrorCode.SEAT_NOT_SELECT);
             }
+
             booking = bookingRepository.save(Booking.of(dto.getTime(), user, seat.getStudyCafe(), seat));
 
         } else if (dto.getType() == SeatType.room) {
             Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
-            if(!room.getIsAvailable()){
+
+            if(bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(),dto.getStartTime(),dto.getStartTime().plusMinutes(dto.getTime()))!=0){ //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
                 throw new CatchStudyException(ErrorCode.ROOM_NOT_AVILABLE);
             }
-            if(bookingRepository.existsByRoomRoomId(room.getRoomId())){
-                throw new CatchStudyException(ErrorCode.ROOM_NOT_SELECT);
-            }
-            booking = bookingRepository.save(Booking.of(dto.getStartTime(), dto.getEndTime(), user, room.getStudyCafe(), room));
+
+            //예약 시작 시간 / 퇴실 시간 저장
+            LocalDateTime bookingStartTime = dto.getStartTime();
+            Integer time = dto.getTime();
+            LocalTime localTime = LocalTime.of(bookingStartTime.getHour(),bookingStartTime.getMinute());
+            LocalTime endLocalTime = localTime.plusMinutes(time);
+            LocalDate localDate = LocalDate.of(bookingStartTime.getYear(),bookingStartTime.getMonth(),bookingStartTime.getDayOfMonth());
+            LocalDateTime bookedEndTime = bookingStartTime.plusMinutes(time);
+
+            BookedRoomInfo bookedRoomInfo = BookedRoomInfo.of(room,localTime,endLocalTime,localDate,bookingStartTime,bookedEndTime);
+            bookedRoomInfoRepository.save(bookedRoomInfo);
+            booking = bookingRepository.save(Booking.of(user,time,room.getStudyCafe(),bookedRoomInfo,bookingStartTime,bookedEndTime));
+
 
         }
         return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready)).getPaymentId();
