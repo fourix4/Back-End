@@ -4,13 +4,12 @@ import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -36,5 +35,18 @@ public class UsersController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.success(usersService.reissuanceAccessToken(token)));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getUser() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success(usersService.getUser()));
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteUser() {
+        usersService.deleteUser();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success());
     }
 }

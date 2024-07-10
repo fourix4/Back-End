@@ -1,6 +1,7 @@
 package com.example.CatchStudy.service;
 
 import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
+import com.example.CatchStudy.domain.dto.response.UsersResponseDto;
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.global.jwt.JwtToken;
 import com.example.CatchStudy.global.jwt.JwtUtil;
@@ -43,13 +44,29 @@ public class  UsersService {
     }
 
     public long getCurrentUserId() {
+        String email = getEmail();
+        Users users = usersRepository.findByEmail(email);
+
+        return users.getUserId();
+    }
+
+    public void deleteUser() {
+        String email = getEmail();
+        usersRepository.deleteByEmail(email);
+    }
+
+    public UsersResponseDto getUser() {
+        String email = getEmail();
+        Users user = usersRepository.findByEmail(email);
+        return new UsersResponseDto(user);
+    }
+
+    private String getEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
 
         if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
 
-        Users users = usersRepository.findByEmail(email);
-
-        return users.getUserId();
+        return email;
     }
 }
