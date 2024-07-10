@@ -11,8 +11,7 @@ import java.util.ArrayList;
 
 @Configuration
 public class CorsConfig {
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -20,9 +19,7 @@ public class CorsConfig {
 
         // 리소스 허용할 URL 지정
         ArrayList<String> allowedOriginPatterns = new ArrayList<>();
-        allowedOriginPatterns.add("http://localhost:8080");
-        allowedOriginPatterns.add("http://localhost:3000");
-        allowedOriginPatterns.add(redisHost+":6739");
+        allowedOriginPatterns.add("*");
         corsConfig.setAllowedOrigins(allowedOriginPatterns);
 
         corsConfig.addAllowedMethod("*");        // 허용 메소드 지정
