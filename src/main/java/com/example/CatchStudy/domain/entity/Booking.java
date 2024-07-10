@@ -34,15 +34,13 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
-    private Room room;
-
+    @OneToOne(orphanRemoval = true,fetch = FetchType.LAZY)
+    @JoinColumn(name = "booked_room_info_id")
+    private BookedRoomInfo bookedRoomInfo;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id")
     private Seat seat;
@@ -53,25 +51,35 @@ public class Booking {
         this.studyCafe = studyCafe;
         this.seat = seat;
     }
-
-    private Booking(LocalDateTime startTime, LocalDateTime endTime, Users user, StudyCafe studyCafe, Room room) {
+    private Booking(Users user, Integer time, StudyCafe studyCafe, BookedRoomInfo bookedRoomInfo,LocalDateTime startTime,LocalDateTime endTime) {
+        this.user = user;
+        this.time = time;
+        this.studyCafe = studyCafe;
+        this.bookedRoomInfo = bookedRoomInfo;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.user = user;
-        this.studyCafe = studyCafe;
-        this.room = room;
     }
-
     public static Booking of(Integer time, Users user, StudyCafe studyCafe, Seat seat) {
         return new Booking(time, user, studyCafe, seat);
     }
 
-    public static Booking of(LocalDateTime startTime, LocalDateTime endTime, Users user, StudyCafe studyCafe, Room room) {
-        return new Booking(startTime, endTime, user, studyCafe, room);
+    public static Booking of(Users user, Integer time, StudyCafe studyCafe, BookedRoomInfo bookedRoomInfo,LocalDateTime startTime,LocalDateTime endTime) {
+        return new Booking(user, time,studyCafe, bookedRoomInfo,startTime,endTime);
     }
 
     public void completeBooking(BookingStatus status, String code) {
         this.status = status;
         this.code = code;
     }
+
+    public void cancelBooking(BookingStatus status){
+        this.status = status;
+        this.startTime = null;
+        this.endTime = null;
+        this.code = null;
+    }
+    public void deleteRoomInfo(){
+        this.bookedRoomInfo = null;
+    }
+
 }

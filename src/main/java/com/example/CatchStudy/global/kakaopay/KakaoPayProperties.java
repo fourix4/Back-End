@@ -10,6 +10,8 @@ public class KakaoPayProperties {
     public static String readyUrl;
     public static String approveUrl;
 
+    public static String cancelUrl;
+
     @Value("${kakaopay.secret-key}")
     public void setAdminKey(String secretKey) {
         KakaoPayProperties.secretKey = secretKey;
@@ -28,5 +30,10 @@ public class KakaoPayProperties {
     @Value("${kakaopay.approve-url}")
     public void setApproveUrl(String approveUrl) {
         KakaoPayProperties.approveUrl = approveUrl;
+    }
+
+    @Value("${kakaopay.cancel-url}")
+    public void setCancelUrl(String cancelUrl) {
+        KakaoPayProperties.cancelUrl = cancelUrl;
     }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -29,8 +31,11 @@ public class StudyCafe {
     @Column
     private String town;
 
-    @Column(columnDefinition = "TEXT")
-    private String openingHours;
+    @Column
+    private LocalTime openingHours;
+
+    @Column
+    private LocalTime closedHours;
 
     @Column(columnDefinition = "TEXT")
     private String closedDay;

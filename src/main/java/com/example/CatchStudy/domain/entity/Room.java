@@ -21,17 +21,10 @@ public class Room {
     private Integer capacity;
 
     @Column
-    private Boolean isAvailable;
-
-    @Column
     private Long cancelAvailableTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
-
-    public void updateRoomStatus(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
 
 }

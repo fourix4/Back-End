@@ -1,5 +1,7 @@
 package com.example.CatchStudy.controller;
 
+import com.example.CatchStudy.domain.dto.request.RoomBookingCancelRequestDto;
+import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.service.BookingService;
@@ -17,8 +19,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final BookingService bookingService;
 
-
-    @GetMapping("/payment/cancel/{paymentId}") //결제 취소
+    @GetMapping("/payment/cancel/{paymentId}") //결제 중 취소
     public void canceled(@PathVariable("paymentId")Long paymentId) {
         bookingService.deleteBooking(paymentId);
         throw new CatchStudyException(ErrorCode.PAYMENT_CANCELED);
