@@ -59,7 +59,8 @@ public class Payment {
         this.amount = amount;
     }
 
-    public void cancelPayment(PaymentStatus paymentStatus) {
+    public void cancelPayment(PaymentStatus paymentStatus, LocalDateTime canceledTime) {
         this.paymentStatus = paymentStatus;
+        this.paymentTime = canceledTime;
     }
 }
