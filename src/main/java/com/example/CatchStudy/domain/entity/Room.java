@@ -24,6 +24,9 @@ public class Room {
     @Column
     private Long cancelAvailableTime;
 
+    @Column
+    private Boolean isAvailable;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
