@@ -1,6 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
-import com.example.CatchStudy.domain.dto.request.StudyCafeRequestDto;
+import com.example.CatchStudy.domain.dto.request.ManagerRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,28 +48,28 @@ public class StudyCafe {
     @JoinColumn(name = "user_id")
     private Users user;
 
-    public StudyCafe(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours, Users user) {
-        this.cafeName = studyCafeRequestDto.getCafeName();
-        this.address = studyCafeRequestDto.getAddress().toAddress();
-        this.city = studyCafeRequestDto.getAddress().getCity();
-        this.country = studyCafeRequestDto.getAddress().getCountry();
-        this.town = studyCafeRequestDto.getAddress().getTown();
+    public StudyCafe(ManagerRequestDto managerRequestDto, LocalTime openingHours, LocalTime closedHours, Users user) {
+        this.cafeName = managerRequestDto.getCafeName();
+        this.address = managerRequestDto.getAddress().toAddress();
+        this.city = managerRequestDto.getAddress().getCity();
+        this.country = managerRequestDto.getAddress().getCountry();
+        this.town = managerRequestDto.getAddress().getTown();
         this.openingHours = openingHours;
         this.closedHours = closedHours;
-        this.closedDay = studyCafeRequestDto.getClosedDay();
-        this.cafePhone = studyCafeRequestDto.getCafePhone();
+        this.closedDay = managerRequestDto.getClosedDay();
+        this.cafePhone = managerRequestDto.getCafePhone();
         this.user = user;
     }
 
-    public void update(StudyCafeRequestDto studyCafeRequestDto,LocalTime openingHours, LocalTime closedHours) {
-        this.cafeName = studyCafeRequestDto.getCafeName();
-        this.address = studyCafeRequestDto.getAddress().toAddress();
-        this.city = studyCafeRequestDto.getAddress().getCity();
-        this.country = studyCafeRequestDto.getAddress().getCountry();
-        this.town = studyCafeRequestDto.getAddress().getTown();
+    public void update(ManagerRequestDto managerRequestDto, LocalTime openingHours, LocalTime closedHours) {
+        this.cafeName = managerRequestDto.getCafeName();
+        this.address = managerRequestDto.getAddress().toAddress();
+        this.city = managerRequestDto.getAddress().getCity();
+        this.country = managerRequestDto.getAddress().getCountry();
+        this.town = managerRequestDto.getAddress().getTown();
         this.openingHours = openingHours;
         this.closedHours = closedHours;
-        this.closedDay = studyCafeRequestDto.getClosedDay();
-        this.cafePhone = studyCafeRequestDto.getCafePhone();
+        this.closedDay = managerRequestDto.getClosedDay();
+        this.cafePhone = managerRequestDto.getCafePhone();
     }
 }
