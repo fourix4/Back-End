@@ -3,6 +3,7 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.RoomDto;
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
 import com.example.CatchStudy.domain.dto.SeatDto;
+import com.example.CatchStudy.domain.dto.UsageFeeDto;
 import com.example.CatchStudy.domain.dto.response.BookingResponseDto;
 import com.example.CatchStudy.domain.dto.response.SeatingChartResponseDto;
 import com.example.CatchStudy.domain.entity.*;
@@ -39,6 +40,7 @@ public class BookingService {
 
     private final StudyCafeRepository studyCafeRepository;
     private final CafeImageRepository cafeImageRepository;
+    private final UsageFeeRepository usageFeeRepository;
 
 
 
@@ -94,10 +96,15 @@ public class BookingService {
                 .stream().sorted(Comparator.comparing(Room::getRoomId))
                 .map(RoomDto::from)
                 .collect(Collectors.toList());
+        List<UsageFeeDto> usageFee = usageFeeRepository.findAllByStudyCafe_CafeId(cafeId)
+                .stream().sorted(Comparator.comparing(UsageFee::getHours))
+                .map(UsageFeeDto::from)
+                .collect(Collectors.toList());
         return SeatingChartResponseDto.toResponseDto(
                 seatingChart,
                 seats,
-                rooms
+                rooms,
+                usageFee
         );
     }
 
