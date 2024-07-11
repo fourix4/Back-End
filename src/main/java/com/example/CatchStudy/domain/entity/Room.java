@@ -25,16 +25,15 @@ public class Room {
     private Long cancelAvailableTime;
 
     @Column
-    private Integer price;
+    private Boolean isAvailable;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
-
     public Room(RoomsRequestDto roomsRequestDto, StudyCafe studyCafe, long cancelAvailableTime) {
         this.roomName = roomsRequestDto.getRoomName();
         this.capacity = roomsRequestDto.getCapacity();
-        this.price = roomsRequestDto.getPrice();
+        this.isAvailable = false;
         this.cancelAvailableTime = cancelAvailableTime;
         this.studyCafe = studyCafe;
     }

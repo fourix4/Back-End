@@ -29,7 +29,4 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             "SELECT b.room.roomId FROM BookedRoomInfo b WHERE b.bookingDate = CURRENT_DATE " +
             "AND b.startTime <= :currentTime AND b.endTime > :currentTime)")
     Integer countAvailableRoomsByStudyCafeId(@Param("cafeId") Long cafeId, @Param("currentTime") LocalTime currentTime);
-
-    @Query("SELECT r.cancelAvailableTime FROM Room r WHERE r.studyCafe.cafeId = :cafeId")
-    Long findCancelAvailableTimeByCafeId(@Param("cafeId") Long cafeId);
 }

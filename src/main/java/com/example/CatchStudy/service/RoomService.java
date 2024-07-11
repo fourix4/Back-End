@@ -1,7 +1,5 @@
 package com.example.CatchStudy.service;
 
-import com.example.CatchStudy.domain.dto.response.RoomInfoResponseDto;
-import com.example.CatchStudy.domain.dto.response.RoomResponseDto;
 import com.example.CatchStudy.domain.entity.Room;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
@@ -101,12 +99,5 @@ public class RoomService {
     @Transactional
     public void deleteRoom(long cafeId) {
         roomRepository.deleteAllByStudyCafe_CafeId(cafeId);
-    }
-
-    public RoomInfoResponseDto getRoomInfoResponseDto(long cafeId) {
-        List<RoomResponseDto> roomResponseDtoList = roomRepository.findAllByStudyCafeCafeId(cafeId).stream().map(RoomResponseDto::new).toList();
-        long cancelAvailableTime = roomRepository.findCancelAvailableTimeByCafeId(cafeId);
-
-        return new RoomInfoResponseDto(cancelAvailableTime, roomResponseDtoList);
     }
 }

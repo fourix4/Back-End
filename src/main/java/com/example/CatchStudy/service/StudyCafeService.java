@@ -40,7 +40,7 @@ public class StudyCafeService {
         int totalRooms = roomRepository.countRoomByStudyCafeId(cafeId);
         int availableRooms = roomRepository.countAvailableRoomsByStudyCafeId(cafeId, currentTime);
 
-        List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(cafeId);
+        List<String> cafeImageUrls = cafeImageRepository.findByStudyCafeUrlIdAndImageType(cafeId, ImageType.cafeImage);
         String seatingChartUrl = cafeImageRepository.findSeatingChartUrlByStudyCafeId(cafeId);
 
         return new StudyCafeResponseDto(studyCafe, cafeImageUrls, seatingChartUrl,
