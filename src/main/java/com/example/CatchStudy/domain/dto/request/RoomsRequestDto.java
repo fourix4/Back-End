@@ -9,5 +9,5 @@ public class RoomsRequestDto {
 
     private String roomName;
     private int capacity;
-    private int counts;
+    private int price;
 }
