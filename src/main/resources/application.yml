@@ -37,6 +37,7 @@ kakaopay:
   cid: ${KAKAOPAY_CID}
   ready-url: ${KAKAOPAY_READY_URL}
   approve-url: ${KAKAOPAY_APPROVE_URL}
+  cancel-url: ${KAKAOPAY_CANCEL_URL}
 
 cloud:
   aws:

@@ -4,6 +4,8 @@ import com.example.CatchStudy.domain.entity.StudyCafe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalTime;
+
 @Getter
 @AllArgsConstructor
 public class StudyCafeDto {
@@ -15,7 +17,8 @@ public class StudyCafeDto {
     private String city;
     private String country;
     private String town;
-    private String openingHours;
+    private LocalTime openingHours;
+    private LocalTime closedHours;
     private String closedDay;
     private String cafePhone;
 
@@ -29,6 +32,7 @@ public class StudyCafeDto {
                 entity.getCountry(),
                 entity.getTown(),
                 entity.getOpeningHours(),
+                entity.getClosedHours(),
                 entity.getClosedDay(),
                 entity.getCafePhone()
         );
