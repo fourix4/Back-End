@@ -38,13 +38,16 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         responseData.put("code", 200);
         responseData.put("message", "success");
 
-        Map<String, String> data = new HashMap<>();
-        data.put("accessToken", jwtToken.getAccessToken());
+        Map<String, Map<String, String>> data = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
+        result.put("accessToken", jwtToken.getAccessToken());
+        data.put("result", result);
         responseData.put("data", data);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
         response.getWriter().write(objectMapper.writeValueAsString(responseData));
+        response.sendRedirect("http://localhost:3000/oauthkakao");
     }
 }

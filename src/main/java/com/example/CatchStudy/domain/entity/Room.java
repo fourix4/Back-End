@@ -1,5 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.RoomsRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,17 +22,20 @@ public class Room {
     private Integer capacity;
 
     @Column
-    private Boolean isAvailable;
+    private Long cancelAvailableTime;
 
     @Column
-    private Long cancelAvailableTime;
+    private Integer price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
 
-    public void updateRoomStatus(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
+    public Room(RoomsRequestDto roomsRequestDto, StudyCafe studyCafe, long cancelAvailableTime) {
+        this.roomName = roomsRequestDto.getRoomName();
+        this.capacity = roomsRequestDto.getCapacity();
+        this.price = roomsRequestDto.getPrice();
+        this.cancelAvailableTime = cancelAvailableTime;
+        this.studyCafe = studyCafe;
     }
-
 }

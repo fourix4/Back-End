@@ -1,5 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.UsageFeeRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,4 +24,10 @@ public class UsageFee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public UsageFee(UsageFeeRequestDto usageFeeRequestDto, StudyCafe studyCafe) {
+        this.hours = usageFeeRequestDto.getHours();
+        this.price = usageFeeRequestDto.getPrice();
+        this.studyCafe = studyCafe;
+    }
 }

@@ -28,4 +28,9 @@ public class Seat {
         this.isAvailable = isAvailable;
     }
 
+    public Seat (String seatNumber, StudyCafe studyCafe) {
+        this.seatNumber = seatNumber;
+        this.isAvailable = false;
+        this.studyCafe = studyCafe;
+    }
 }

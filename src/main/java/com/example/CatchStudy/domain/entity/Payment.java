@@ -45,7 +45,6 @@ public class Payment {
         this.paymentStatus = paymentStatus;
     }
 
-
     public static Payment of(PaymentType paymentType, Booking booking, PaymentStatus paymentStatus) {
         return new Payment(paymentType, booking, paymentStatus);
     }
@@ -58,5 +57,9 @@ public class Payment {
         this.paymentTime = paymentTime;
         this.paymentStatus = paymentStatus;
         this.amount = amount;
+    }
+
+    public void cancelPayment(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }
