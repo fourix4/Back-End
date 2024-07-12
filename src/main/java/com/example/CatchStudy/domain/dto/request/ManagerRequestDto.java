@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class StudyCafeRequestDto {
+public class ManagerRequestDto {
 
     private String cafeName;
     private AddressRequestDto address;

@@ -48,5 +48,6 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         response.setCharacterEncoding("UTF-8");
 
         response.getWriter().write(objectMapper.writeValueAsString(responseData));
+        response.sendRedirect("http://localhost:3000/oauthkakao");
     }
 }

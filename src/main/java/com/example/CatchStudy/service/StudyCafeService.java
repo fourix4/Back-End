@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -32,12 +33,14 @@ public class StudyCafeService {
     private final RoomRepository roomRepository;
 
     public StudyCafeResponseDto getStudyCafe(long cafeId) {
+        LocalTime currentTime = LocalTime.now();
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(cafeId).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         int totalSeats = seatRepository.countSeatByStudyCafeId(cafeId);
         int availableSeats = seatRepository.countAvailableSeatsByStudyCafeId(cafeId);
         int totalRooms = roomRepository.countRoomByStudyCafeId(cafeId);
-        int availableRooms = roomRepository.countAvailableRoomsByStudyCafeId(cafeId);
-        List<String> cafeImageUrls = cafeImageRepository.findByStudyCafeUrlIdAndImageType(cafeId, ImageType.cafeImage);
+        int availableRooms = roomRepository.countAvailableRoomsByStudyCafeId(cafeId, currentTime);
+
+        List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(cafeId);
         String seatingChartUrl = cafeImageRepository.findSeatingChartUrlByStudyCafeId(cafeId);
 
         return new StudyCafeResponseDto(studyCafe, cafeImageUrls, seatingChartUrl,
