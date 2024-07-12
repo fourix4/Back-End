@@ -2,10 +2,7 @@ package com.example.CatchStudy.controller;
 
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
 import com.example.CatchStudy.domain.dto.request.BookingRequestDto;
-import com.example.CatchStudy.domain.dto.response.BookingResponseDto;
-import com.example.CatchStudy.domain.dto.response.Response;
-import com.example.CatchStudy.domain.dto.response.Result;
-import com.example.CatchStudy.domain.dto.response.SeatingChartResponseDto;
+import com.example.CatchStudy.domain.dto.response.*;
 import com.example.CatchStudy.global.enums.SeatType;
 import com.example.CatchStudy.repository.UsersRepository;
 import com.example.CatchStudy.service.BookingService;
@@ -23,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/studycafes")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class BookingController {
 
@@ -31,7 +28,7 @@ public class BookingController {
     private final PaymentService paymentService;
     private final UsersRepository usersRepository;
 
-    @PostMapping("/seats")
+    @PostMapping("/studycafes/seats")
     public ResponseEntity<?> bookingSeats(@RequestBody BookingRequestDto bookingRequestDto, Authentication authentication){
         User user =  (User) authentication.getPrincipal();
         Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
@@ -47,9 +44,16 @@ public class BookingController {
                 .body(bookingResponseDto);
     }
 
-    @GetMapping("/{cafe_id}/seatingchart")
+    @GetMapping("/studycafes/{cafe_id}/seatingchart")
     public Response<SeatingChartResponseDto> seatingChart(@PathVariable("cafe_id")Long cafeId){
         return Response.success(Result.toResponseDto(bookingService.showSeatingChart(cafeId)));
+    }
+
+    @GetMapping("/booking/{userId}")
+    public Response<AvailableBookingResponseDto> AvailableBooking(Authentication authentication){ //현재 예약 내용 확인
+        User user =  (User) authentication.getPrincipal();
+        Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
+        return Response.success(Result.toResponseDto(bookingService.getAvailableBooking(userId)));
     }
 
 }
