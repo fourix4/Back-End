@@ -32,7 +32,9 @@ jobs:
           kakaopay.cid: ${{ secrets.KAKAOPAY_CID }}
           kakaopay.ready-url: ${{ secrets.KAKAOPAY_READY_URL }}
           kakaopay.approve-url: ${{ secrets.KAKAOPAY_APPROVE_URL }}
-
+          cloud.aws.credentials.access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          cloud.aws.credentials.secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          
       - name: Set Environment for application-oauth.yml
         uses: microsoft/variable-substitution@v1
         with:
