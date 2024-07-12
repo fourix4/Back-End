@@ -49,11 +49,13 @@ public class BookingController {
         return Response.success(Result.toResponseDto(bookingService.showSeatingChart(cafeId)));
     }
 
-    @GetMapping("/booking/{userId}")
+    @GetMapping("/booking")
     public Response<AvailableBookingResponseDto> AvailableBooking(Authentication authentication){ //현재 예약 내용 확인
         User user =  (User) authentication.getPrincipal();
         Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
         return Response.success(Result.toResponseDto(bookingService.getAvailableBooking(userId)));
     }
+
+
 
 }
