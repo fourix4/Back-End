@@ -137,7 +137,7 @@ public class PaymentService {
 
         // 결제 환불 후 예약 스터디룸 정보 삭제
         payment.getBooking().cancelBooking(BookingStatus.canceled);
-        payment.cancelPayment(PaymentStatus.cancel);
+        payment.cancelPayment(PaymentStatus.cancel,kakaoCancel.getCanceled_at());
         payment.getBooking().deleteRoomInfo();
         bookedRoomInfoRepository.delete(bookedRoomInfo);
     }
