@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     boolean existsBySeatSeatId(Long seatId);
@@ -25,4 +26,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     )
     List<Booking> getAvailableRooms(@Param(value = "userId") Long userId);
+
+    @Query(
+            value = "select b from Booking b where b.user.userId = :userId and " +
+                    "b.code = :code and b.status = 'beforeEnteringRoom' and b.seat is not null"
+    )
+    Optional<Booking> findBookingBeforeEnteringSeat(@Param(value = "userId")Long userId, @Param(value = "code")String code);
+
 }

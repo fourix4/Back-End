@@ -211,6 +211,14 @@ public class BookingService {
         );
     }
 
+    public void updateSeatStartTime(Long userId, String code){ // 입실 시간과 퇴실 시간 등록
+        Booking booking = bookingRepository.findBookingBeforeEnteringSeat(userId,code).orElseThrow(
+                ()->new CatchStudyException(ErrorCode.BOOKING_SEAT_NOT_FOUND)
+        );
+        booking.checkInSeatBooking(LocalDateTime.now(),booking.getTime());
+
+    }
+
     public void deleteBooking(Long paymentId) {
         paymentRepository.deleteByPaymentId(paymentId);
     }
