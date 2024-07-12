@@ -24,4 +24,8 @@ public class SeatService {
     public void deleteSeat(long cafeId) {
         seatRepository.deleteAllByStudyCafe_CafeId(cafeId);
     }
+
+    public int getSeatsCount(long cafeId) {
+        return seatRepository.countSeatByStudyCafeId(cafeId);
+    }
 }
