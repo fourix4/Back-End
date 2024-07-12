@@ -1,6 +1,7 @@
 package com.example.CatchStudy.domain.entity;
 
 import com.example.CatchStudy.global.enums.BookingStatus;
+import com.example.CatchStudy.global.enums.SeatType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,6 +78,12 @@ public class Booking {
         this.startTime = null;
         this.endTime = null;
         this.code = null;
+    }
+    public SeatType getSeatType(){
+        if(this.seat == null){
+            return SeatType.room;
+        }
+        return SeatType.seat;
     }
     public void deleteRoomInfo(){
         this.bookedRoomInfo = null;

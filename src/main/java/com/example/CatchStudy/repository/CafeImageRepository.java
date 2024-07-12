@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CafeImageRepository extends JpaRepository<CafeImage, Long> {
-    CafeImage findByStudyCafeCafeIdAndImageType(Long cafeId, ImageType imageType);
+    Optional<CafeImage> findByStudyCafeCafeIdAndImageType(Long cafeId, ImageType imageType);
 
     List<CafeImage> findAllByStudyCafe_CafeId(long cafeId);
 
