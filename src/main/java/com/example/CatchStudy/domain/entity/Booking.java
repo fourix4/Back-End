@@ -91,6 +91,13 @@ public class Booking {
         this.endTime = startTime.plusMinutes(time);
         this.status = BookingStatus.enteringRoom;
     }
+
+    public void checkOutSeatBooking(LocalDateTime endTime){
+        this.endTime = endTime;
+        this.code = null;
+        this.status = BookingStatus.completed;
+    }
+
     public void deleteRoomInfo(){
         this.bookedRoomInfo = null;
     }

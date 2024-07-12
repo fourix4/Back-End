@@ -3,6 +3,7 @@ package com.example.CatchStudy.controller;
 import com.example.CatchStudy.domain.dto.SeatBookingDto;
 import com.example.CatchStudy.domain.dto.request.BookingRequestDto;
 import com.example.CatchStudy.domain.dto.request.SeatCheckInRequestDto;
+import com.example.CatchStudy.domain.dto.request.SeatCheckOutRequestDto;
 import com.example.CatchStudy.domain.dto.response.*;
 import com.example.CatchStudy.global.enums.SeatType;
 import com.example.CatchStudy.repository.UsersRepository;
@@ -62,6 +63,11 @@ public class BookingController {
         User user =  (User) authentication.getPrincipal();
         Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
         bookingService.updateSeatStartTime(userId,dto.getCode());
+        return Response.success();
+    }
+    @PatchMapping("/booking/checkout")
+    public Response<Void> checkOutSeat(@RequestBody SeatCheckOutRequestDto dto){ // 퇴실
+        bookingService.checkOutSeat(dto.getBooking_id());
         return Response.success();
     }
 

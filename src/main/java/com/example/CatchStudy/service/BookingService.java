@@ -3,6 +3,7 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.*;
 import com.example.CatchStudy.domain.dto.response.*;
 import com.example.CatchStudy.domain.entity.*;
+import com.example.CatchStudy.global.enums.BookingStatus;
 import com.example.CatchStudy.global.enums.ImageType;
 import com.example.CatchStudy.global.enums.PaymentStatus;
 import com.example.CatchStudy.global.enums.SeatType;
@@ -211,12 +212,21 @@ public class BookingService {
         );
     }
 
-    public void updateSeatStartTime(Long userId, String code){ // 입실 시간과 퇴실 시간 등록
-        Booking booking = bookingRepository.findBookingBeforeEnteringSeat(userId,code).orElseThrow(
-                ()->new CatchStudyException(ErrorCode.BOOKING_SEAT_NOT_FOUND)
+    public void updateSeatStartTime(Long userId, String code) { // 입실 시간과 퇴실 시간 등록
+        Booking booking = bookingRepository.findBookingBeforeEnteringSeat(userId, code).orElseThrow(
+                () -> new CatchStudyException(ErrorCode.BOOKING_SEAT_NOT_FOUND)
         );
-        booking.checkInSeatBooking(LocalDateTime.now(),booking.getTime());
+        booking.checkInSeatBooking(LocalDateTime.now(), booking.getTime());
 
+    }
+
+    public void checkOutSeat(Long bookingId) { // 퇴실 처리
+        Booking booking = bookingRepository.findByBookingId(bookingId);
+        if (booking.getStatus() != BookingStatus.enteringRoom) {
+            throw new CatchStudyException(ErrorCode.ENTERING_SEAT_NOT_FOUND);
+        }
+        booking.checkOutSeatBooking(LocalDateTime.now());
+        booking.getSeat().checkOutSeat(true);
     }
 
     public void deleteBooking(Long paymentId) {

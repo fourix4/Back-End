@@ -28,9 +28,13 @@ public class Seat {
         this.isAvailable = isAvailable;
     }
 
-    public Seat (String seatNumber, StudyCafe studyCafe) {
+    public Seat(String seatNumber, StudyCafe studyCafe) {
         this.seatNumber = seatNumber;
         this.isAvailable = false;
         this.studyCafe = studyCafe;
+    }
+
+    public void checkOutSeat(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
     }
 }
