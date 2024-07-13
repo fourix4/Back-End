@@ -27,7 +27,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        log.info("성공 : " + String.valueOf(request.getRequestURL()));
+        log.info("success : " + String.valueOf(request.getRequestURL()));
         // 인증된 사용자 정보를 oauth 로 캐스팅
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
