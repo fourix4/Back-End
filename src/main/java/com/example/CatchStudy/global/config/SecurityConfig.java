@@ -40,6 +40,7 @@ public class SecurityConfig{
             ).oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(custumOauth2UserService))
                 .successHandler(authenticationSuccessHandler)
+                .defaultSuccessUrl("http://localhost:3000/oauthkakao")
             ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
