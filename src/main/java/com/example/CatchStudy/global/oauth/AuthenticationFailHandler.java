@@ -18,6 +18,7 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        log.info("실패 : " + String.valueOf(request.getRequestURL()));
+        log.info("fail : " + String.valueOf(request.getRequestURL()));
+        log.info("exception message : " + exception.getMessage());
     }
 }
