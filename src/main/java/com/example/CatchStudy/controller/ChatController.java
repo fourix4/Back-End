@@ -2,9 +2,12 @@ package com.example.CatchStudy.controller;
 
 import com.example.CatchStudy.domain.dto.request.ChatRoomRequestDto;
 import com.example.CatchStudy.domain.dto.response.ChatRoomResponseDto;
+import com.example.CatchStudy.domain.dto.response.Response;
+import com.example.CatchStudy.domain.dto.response.Result;
 import com.example.CatchStudy.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +22,13 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("")
-    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
+    public Response createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
 
-        return chatService.createChatRoom(chatRoomRequestDto);
+        return Response.success(Result.toResponseDto(chatService.createChatRoom(chatRoomRequestDto)));
+    }
+
+    @GetMapping("/rooms")
+    public Response getChatRoomList() {
+        return Response.success(Result.toResponseDto(chatService.getChatRoomList()));
     }
 }
