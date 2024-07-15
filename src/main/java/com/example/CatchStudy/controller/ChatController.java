@@ -7,10 +7,7 @@ import com.example.CatchStudy.domain.dto.response.Result;
 import com.example.CatchStudy.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @RequiredArgsConstructor
@@ -30,5 +27,10 @@ public class ChatController {
     @GetMapping("/rooms")
     public Response getChatRoomList() {
         return Response.success(Result.toResponseDto(chatService.getChatRoomList()));
+    }
+
+    @GetMapping("/{chat_room_id}")
+    public Response getChatRoom(@PathVariable("chat_room_id") long chatRoomId) {
+        return Response.success(Result.toResponseDto(chatService.getMessageList(chatRoomId)));
     }
 }

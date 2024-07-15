@@ -2,6 +2,7 @@ package com.example.CatchStudy.service;
 
 import com.example.CatchStudy.domain.dto.request.ChatRoomRequestDto;
 import com.example.CatchStudy.domain.dto.response.ChatRoomResponseDto;
+import com.example.CatchStudy.domain.dto.response.MessageResponseDto;
 import com.example.CatchStudy.domain.entity.ChatRoom;
 import com.example.CatchStudy.domain.entity.Message;
 import com.example.CatchStudy.domain.entity.StudyCafe;
@@ -55,5 +56,7 @@ public class ChatService {
         return chatRoomResponseDtoList;
     }
 
-
+    public List<MessageResponseDto> getMessageList(long chatRoomId) {
+        return messageRepository.findByChatRoomId(chatRoomId).stream().map(MessageResponseDto::new).toList();
+    }
 }
