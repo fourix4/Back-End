@@ -24,4 +24,10 @@ public class ChatRoom {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public ChatRoom(Users user, StudyCafe studyCafe) {
+        this.status = false;
+        this.user = user;
+        this.studyCafe = studyCafe;
+    }
 }
