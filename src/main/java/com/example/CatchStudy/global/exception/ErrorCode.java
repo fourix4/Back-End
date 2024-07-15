@@ -10,6 +10,7 @@ public enum ErrorCode {
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "권한이 없는 유저입니다."),
     SEAT_NOT_AVAILABLE(HttpStatus.NOT_ACCEPTABLE, "이미 예약된 좌석입니다"),
     ROOM_NOT_AVAILABLE(HttpStatus.NOT_ACCEPTABLE, "이미 예약된 룸입니다"),
     STUDYCAFE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스터디카페를 찾을 수 없습니다"),
