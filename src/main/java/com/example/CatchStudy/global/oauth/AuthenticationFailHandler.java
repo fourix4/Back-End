@@ -18,7 +18,9 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        log.info("fail : " + String.valueOf(request.getRequestURL()));
-        log.info("exception message : " + exception.getMessage());
+        log.error("Authentication failed: {}", exception.getMessage());
+
+        String redirectUrl = "http://localhost:3000/oauthkakao";
+        response.sendRedirect(redirectUrl);
     }
 }
