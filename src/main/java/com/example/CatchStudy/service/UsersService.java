@@ -3,6 +3,7 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
 import com.example.CatchStudy.domain.dto.response.UsersResponseDto;
 import com.example.CatchStudy.domain.entity.Users;
+import com.example.CatchStudy.global.enums.Author;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.global.jwt.JwtToken;
@@ -28,6 +29,13 @@ public class  UsersService {
     private final UsersRepository usersRepository;
     private final JwtUtil jwtUtil;
 
+    public String loginCheck(String email) {
+        Users user = usersRepository.findByEmail(email);
+        JwtToken jwtToken = jwtUtil.generatedToken(email, user.getAuthor());
+
+        return jwtToken.getAccessToken();
+    }
+
     @Transactional
     public void logout(String token) {
         String accessToken = token.substring(7);
@@ -38,9 +46,13 @@ public class  UsersService {
     public AccessTokenResponseDto reissuanceAccessToken(String token) {
         String accessToken = token.substring(7);
         String refreshToken = refreshTokenRepository.find(accessToken);
+        if(refreshToken == null) throw new CatchStudyException(ErrorCode.EXPIRED_LOGIN_ERROR);
 
-        Map<String, String> map = jwtUtil.getEmailandAuthor(refreshToken);
-        JwtToken jwtToken = jwtUtil.generatedToken(map.get("email"), map.get("author"));
+        refreshTokenRepository.delete(accessToken);
+        String email = jwtUtil.getEmailFromRefreshToken(refreshToken);
+        Users user = usersRepository.findByEmail(email);
+
+        JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
 
         return new AccessTokenResponseDto(jwtToken.getAccessToken());
     }
@@ -61,9 +73,8 @@ public class  UsersService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
 
-        if(authentication == null) throw new CatchStudyException(ErrorCode.USER_NOT_FOUND);
-
-        if (authentication.getPrincipal() instanceof User user) email = user.getUsername();
+        if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
+        else throw new CatchStudyException(ErrorCode.USER_NOT_FOUND);
 
         return email;
     }

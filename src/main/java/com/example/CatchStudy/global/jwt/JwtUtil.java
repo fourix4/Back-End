@@ -1,5 +1,6 @@
 package com.example.CatchStudy.global.jwt;
 
+import com.example.CatchStudy.global.enums.Author;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -28,7 +29,7 @@ public class JwtUtil {
     }
 
     // 토큰 발급
-    public JwtToken generatedToken(String email, String author) {
+    public JwtToken generatedToken(String email, Author author) {
 
         String accessToken = createAccessToken(email, author);
         String refreshToken = createRefreshToken(email, author);
@@ -40,7 +41,7 @@ public class JwtUtil {
 
 
     // Access Token 생성
-    public String createAccessToken(String email, String author) {
+    public String createAccessToken(String email, Author author) {
 
         return Jwts.builder()
                 .setSubject(email)
@@ -52,7 +53,7 @@ public class JwtUtil {
     }
 
     // Refresh Token 생성
-    public String createRefreshToken(String email, String author) {
+    public String createRefreshToken(String email, Author author) {
 
         return Jwts.builder()
                 .setSubject(email)
@@ -101,21 +102,13 @@ public class JwtUtil {
         return new UsernamePasswordAuthenticationToken(user, accessToken, authorities);
     }
 
-    public Map<String, String> getEmailandAuthor(String refreshToken) {
-        Map<String, String> map = new HashMap<>();
-
+    public String getEmailFromRefreshToken(String refreshToken) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(refreshToken)
                 .getBody();
 
-        String email = claims.getSubject();
-        String author = (String) claims.get(AUTHORITIES_KEY);
-
-        map.put("email", email);
-        map.put("author", author);
-
-        return map;
+        return claims.getSubject();
     }
 }

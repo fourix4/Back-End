@@ -27,28 +27,9 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        log.info("success : " + String.valueOf(request.getRequestURL()));
-        // 인증된 사용자 정보를 oauth 로 캐스팅
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        String email = oAuth2User.getAttribute("email");
-        String author = oAuth2User.getAuthorities().stream().findFirst().orElseThrow().getAuthority();    // author 가져오기
-
-        JwtToken jwtToken = jwtUtil.generatedToken(email, author);
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("code", 200);
-        responseData.put("message", "success");
-
-        Map<String, Map<String, String>> data = new HashMap<>();
-        Map<String, String> result = new HashMap<>();
-        result.put("accessToken", jwtToken.getAccessToken());
-        data.put("result", result);
-        responseData.put("data", data);
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        response.getWriter().write(objectMapper.writeValueAsString(responseData));
+        // 인증 성공 후 리디렉션 수행
+        String redirectUrl = "http://localhost:3000/oauthkakao";
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
