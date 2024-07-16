@@ -19,17 +19,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class BookingService {
 
@@ -44,7 +46,13 @@ public class BookingService {
     private final CafeImageRepository cafeImageRepository;
     private final UsageFeeRepository usageFeeRepository;
 
+    private final ScheduledExecutorService scheduler;
 
+    private final SchedulerService schedulerService;
+
+
+
+    @Transactional
     public Long saveBooking(SeatBookingDto dto, Long userId) {
         Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
@@ -84,6 +92,7 @@ public class BookingService {
 
     }
 
+    @Transactional(readOnly = true)
     public SeatingChartResponseDto showSeatingChart(Long cafeId) {
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(cafeId).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         String seatingChart = cafeImageRepository.findByStudyCafeCafeIdAndImageType(cafeId, ImageType.seatingChart).orElseThrow(
@@ -111,6 +120,7 @@ public class BookingService {
         );
     }
 
+    @Transactional(readOnly = true)
     public BookingHistoryResponseDto getBookingHistory(Long userId) { // 최근 30개 예약 내역 조회
         List<Payment> payments = paymentRepository.findTop30ByBooking_User_UserIdOrderByPaymentTimeDesc(userId);
         List<BookingHistoryDto> bookingDtos = new ArrayList<>();
@@ -135,6 +145,7 @@ public class BookingService {
         );
     }
 
+    @Transactional(readOnly = true)
     public BookingHistoryByDateResponseDto getBookingHistoryByDate(Long userId, LocalDate startDate, LocalDate endDate, int page) { // 일정 기간 예약 내역 조회
         List<Sort.Order> sort = new ArrayList<>();
         sort.add(Sort.Order.asc("paymentTime"));
@@ -165,6 +176,7 @@ public class BookingService {
         );
     }
 
+    @Transactional(readOnly = true)
     public AvailableBookingResponseDto getAvailableBooking(Long userId) { //현재 예약 내용 조회
         List<Booking> bookings = bookingRepository.getAvailableSeats(userId);
         List<Booking> rooms = bookingRepository.getAvailableRooms(userId);
@@ -212,14 +224,18 @@ public class BookingService {
         );
     }
 
+    @Transactional
     public void updateSeatStartTime(Long userId, String code) { // 입실 시간과 퇴실 시간 등록
         Booking booking = bookingRepository.findBookingBeforeEnteringSeat(userId, code).orElseThrow(
                 () -> new CatchStudyException(ErrorCode.BOOKING_SEAT_NOT_FOUND)
         );
-        booking.checkInSeatBooking(LocalDateTime.now(), booking.getTime());
 
+        LocalDateTime nowTime = LocalDateTime.now();
+        booking.checkInSeatBooking(nowTime,booking.getTime());
+        checkAndCheckOutSeatBooking(booking.getBookingId(),nowTime.plusMinutes(booking.getTime()));
     }
 
+    @Transactional
     public void checkOutSeat(Long bookingId) { // 퇴실 처리
         Booking booking = bookingRepository.findByBookingId(bookingId);
         if (booking.getStatus() != BookingStatus.enteringRoom) {
@@ -229,6 +245,13 @@ public class BookingService {
         booking.getSeat().checkOutSeat(true);
     }
 
+    public void checkAndCheckOutSeatBooking(Long bookingId,LocalDateTime checkOutTime){
+        LocalDateTime now = LocalDateTime.now();
+        long delay = Duration.between(now,checkOutTime).toMillis();
+        scheduler.schedule(()->schedulerService.checkAndCheckOutSeatBooking(bookingId),delay, TimeUnit.MILLISECONDS);
+    }
+
+    @Transactional
     public void deleteBooking(Long paymentId) {
         paymentRepository.deleteByPaymentId(paymentId);
     }

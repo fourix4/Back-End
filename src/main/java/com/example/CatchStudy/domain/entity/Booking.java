@@ -98,6 +98,20 @@ public class Booking {
         this.status = BookingStatus.completed;
     }
 
+    public void cancelBeforeEnteringSeat(){
+        this.status = BookingStatus.canceled;
+        this.code = null;
+    }
+
+    public void checkInRoomBooking(){
+        this.status = BookingStatus.enteringRoom;
+    }
+
+    public void checkOutRoomBooking(){
+        this.code = null;
+        this.status = BookingStatus.completed;
+    }
+
     public void deleteRoomInfo(){
         this.bookedRoomInfo = null;
     }
