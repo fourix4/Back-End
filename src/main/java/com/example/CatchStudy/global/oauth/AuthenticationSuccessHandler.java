@@ -27,6 +27,8 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        log.info("user info: " + oAuth2User.getAttributes());
 
         // 인증 성공 후 리디렉션 수행
         String redirectUrl = "http://localhost:3000/oauthkakao";
