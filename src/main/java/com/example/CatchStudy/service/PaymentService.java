@@ -18,16 +18,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class PaymentService {
     private final UsersRepository usersRepository;
@@ -37,7 +40,11 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
+    private final ScheduledExecutorService scheduler;
 
+    private final SchedulerService schedulerService;
+
+    @Transactional
     public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
 
         Long paymentId = bookingService.saveBooking(dto, userId);
@@ -70,7 +77,7 @@ public class PaymentService {
         return kakaoReady.toDto();
 
     }
-
+    @Transactional
     public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) { //카카오 페이에 승인 요청
 
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -95,16 +102,22 @@ public class PaymentService {
 
         //좌석,room 사용중으로 변경,  booking 테이블 변경 (상태,code), payment 테이블 변경 (amount,승인시간,status)
         String code = makeCode();
-        booking.completeBooking(BookingStatus.beforeEnteringRoom, makeCode());
-        payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve, kakaoApprove.getAmount().getTotal());
-        if (booking.getBookedRoomInfo() == null) {
+        booking.completeBooking(BookingStatus.beforeEnteringRoom,makeCode());
+        payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve,kakaoApprove.getAmount().getTotal());
+
+        if(booking.getBookedRoomInfo() == null){ //좌석 일 때
             booking.getSeat().updateSeatStatus(false);
+            scheduleStatusCheck(booking.getBookingId(),payment); //30 분 후 좌석 상태 확인 작업 스케줄;
+        }else{
+            scheduleRoomEnterUpdate(booking.getBookingId(),booking.getStartTime());  //  스터디룸 입실 시간이 되었을 때 작업 스케줄
+            scheduleCheckOutRoomBooking(booking.getBookingId(),booking.getEndTime()); // 스터디룸 퇴실 시간이 되었을 때 작업 스케줄
         }
 
         return kakaoApprove;
 
     }
 
+    @Transactional
     public void kakaoCancel(Long bookingId) {
 
         Payment payment = paymentRepository.findByBookingBookingId(bookingId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -140,6 +153,32 @@ public class PaymentService {
         payment.cancelPayment(PaymentStatus.cancel,kakaoCancel.getCanceled_at());
         payment.getBooking().deleteRoomInfo();
         bookedRoomInfoRepository.delete(bookedRoomInfo);
+    }
+
+    private void printInfo(){
+        boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
+        log.info("tx active={}",txActive );
+    }
+
+    public void scheduleStatusCheck(Long bookingId, Payment payment) { // 좌석 결제 30분 후 입실 상태 확인
+        printInfo();
+        LocalDateTime paymentTime = payment.getPaymentTime();
+        long delay = Duration.between(LocalDateTime.now(), paymentTime.plusMinutes(30)).toMillis();
+        if(delay>0){
+            scheduler.schedule(() -> schedulerService.checkAndCancelBooking(bookingId), delay, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public void scheduleRoomEnterUpdate(Long bookingId,LocalDateTime checkInTime) { // 스터디룸 입실 시간 되면 booking 테이블 '입실 중' 변경
+        LocalDateTime now = LocalDateTime.now();
+        long delay = Duration.between(now, checkInTime).toMillis(); // 입장 시간 1분전 부터 '입장 중'
+        scheduler.schedule(() -> schedulerService.checkAndCheckInRoomBooking(bookingId), delay, TimeUnit.MILLISECONDS);
+    }
+
+    public void scheduleCheckOutRoomBooking(Long bookingId,LocalDateTime checkOutTime){ // 스터디룸 퇴실 시간이 되면 booking 테이블 '이용 완료' 변경
+        LocalDateTime now = LocalDateTime.now();
+        long delay = Duration.between(now,checkOutTime).toMillis();
+        scheduler.schedule(()->schedulerService.checkAndCheckOutRoomBooking(bookingId),delay,TimeUnit.MILLISECONDS);
     }
 
     private HttpHeaders getHeaders() {

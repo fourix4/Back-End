@@ -28,6 +28,9 @@ public enum ErrorCode {
 
     DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 오류입니다"),
     CANCEL_POSSIBLE_TIME_PASSED(HttpStatus.NOT_ACCEPTABLE, "취소 가능한 시간이 지났습니다"),
+    BOOKING_SEAT_NOT_FOUND(HttpStatus.NOT_FOUND,"예약한 좌석이 존재하지 않습니다"),
+
+    ENTERING_SEAT_NOT_FOUND(HttpStatus.NOT_FOUND,"입실 중인 좌석이 존재하지 않습니다"),
 
     //S3 Error
     EMPTY_FILE_EXCEPTION(HttpStatus.BAD_REQUEST, "파일이 없습니다."),
