@@ -3,6 +3,9 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
 import com.example.CatchStudy.domain.dto.response.UsersResponseDto;
 import com.example.CatchStudy.domain.entity.Users;
+import com.example.CatchStudy.global.enums.Author;
+import com.example.CatchStudy.global.exception.CatchStudyException;
+import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.global.jwt.JwtToken;
 import com.example.CatchStudy.global.jwt.JwtUtil;
 import com.example.CatchStudy.global.jwt.RefreshTokenRepository;
@@ -36,9 +39,13 @@ public class  UsersService {
     public AccessTokenResponseDto reissuanceAccessToken(String token) {
         String accessToken = token.substring(7);
         String refreshToken = refreshTokenRepository.find(accessToken);
+        if(refreshToken == null) throw new CatchStudyException(ErrorCode.EXPIRED_LOGIN_ERROR);
 
-        Map<String, String> map = jwtUtil.getEmailandAuthor(refreshToken);
-        JwtToken jwtToken = jwtUtil.generatedToken(map.get("email"), map.get("author"));
+        refreshTokenRepository.delete(accessToken);
+        String email = jwtUtil.getEmailFromRefreshToken(refreshToken);
+        Users user = usersRepository.findByEmail(email);
+
+        JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
 
         return new AccessTokenResponseDto(jwtToken.getAccessToken());
     }
@@ -55,17 +62,12 @@ public class  UsersService {
         usersRepository.deleteByEmail(email);
     }
 
-    public UsersResponseDto getUser() {
-        String email = getEmail();
-        Users user = usersRepository.findByEmail(email);
-        return new UsersResponseDto(user);
-    }
-
     private String getEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
 
         if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
+        else throw new CatchStudyException(ErrorCode.USER_NOT_FOUND);
 
         return email;
     }
