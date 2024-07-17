@@ -52,24 +52,56 @@ public class RoomService {
         LocalDate today = LocalDate.of(rightTime.getYear(), rightTime.getMonth(), rightTime.getDayOfMonth());
         LocalTime todayTime = LocalTime.of(rightTime.getHour(), rightTime.getMinute());
 
-        if (today.isEqual(selectedDate)) { //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
-            nowTime2 = LocalTime.of(rightTime.getHour(), 0);
-            while (true) {
-                if (!nowTime2.isBefore(startTime) && nowTime2.isAfter(todayTime)) {
+        if (endTime.isBefore(startTime)) { // 마감시간이 00:00 이후이면
+
+            LocalDateTime now = LocalDateTime.of(rightTime.getYear(),rightTime.getMonth(),rightTime.getDayOfMonth(),startTime.getHour(),startTime.getMinute());
+            LocalDateTime last = LocalDateTime.of(rightTime.getYear(),rightTime.getMonth(),rightTime.getDayOfMonth(),endTime.getHour(),endTime.getMinute()).plusDays(1);
+            LocalDateTime now2 = null;
+
+            if(today.isEqual(selectedDate)){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
+                now2 = LocalDateTime.of(rightTime.getYear(),rightTime.getMonth(),rightTime.getDayOfMonth(),rightTime.getHour(),0);
+                while(true){
+                    if(!now2.isBefore(now)&& now2.isAfter(rightTime)){
+                        break;
+                    }
+                    now2 = now2.plusMinutes(30);
+                }
+                now = now2;
+            }
+
+            while(true){
+                if(now.plusMinutes(time).isAfter(last)){
                     break;
                 }
-                nowTime2 = nowTime2.plusMinutes(30);
+                dates.add(LocalTime.of(now.getHour(),now.getMinute()));
+                now = now.plusMinutes(30);
             }
-            nowTime = nowTime2;
+
+        }else{
+
+            if(today.isEqual(selectedDate)){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
+
+                nowTime2 = LocalTime.of(rightTime.getHour(),0);
+                while(true){
+                    if(!nowTime2.isBefore(startTime)&& nowTime2.isAfter(todayTime)){
+                        break;
+                    }
+                    nowTime2 = nowTime2.plusMinutes(30);
+                }
+                nowTime = nowTime2;
+            }
+
+            while(true){
+                if(nowTime.plusMinutes(time).isAfter(endTime)){ // 퇴실 시간이 영업 마감 시간 이후인 경우
+                    break;
+                }
+                System.out.println("nowTime= "+nowTime);
+                dates.add(nowTime);
+                nowTime=nowTime.plusMinutes(30);
+            }
+
         }
 
-        while (true) {
-            if (nowTime.plusMinutes(time).isAfter(endTime)) { // 퇴실 시간이 영업 마감 시간 이후인 경우
-                break;
-            }
-            dates.add(nowTime);
-            nowTime = nowTime.plusMinutes(30);
-        }
 
         //선택한 시간 안에 예약된 스터디룸이 없을 때만 가능
         return dates.stream().filter(
