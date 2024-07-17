@@ -127,7 +127,7 @@ public class BookingService {
             StudyCafe studyCafe = booking.getStudyCafe();
             String cafeImage =  cafeImageRepository.findByStudyCafeCafeIdAndImageType(studyCafe.getCafeId(),ImageType.thumbnail)
                     .map(CafeImage::getCafeImage)
-                    .orElse("기본 thumbnail url");
+                    .orElse("");
 
             return BookingHistoryDto.toDto(
                     booking.getBookingId(),
@@ -161,7 +161,7 @@ public class BookingService {
 
             String cafeImage = cafeImageRepository.findByStudyCafeCafeIdAndImageType(studyCafe.getCafeId(),ImageType.thumbnail)
                     .map(CafeImage::getCafeImage)
-                    .orElse("기본 thumbnail url");
+                    .orElse("");
 
             return BookingHistoryDto.toDto(
                     booking.getBookingId(),
