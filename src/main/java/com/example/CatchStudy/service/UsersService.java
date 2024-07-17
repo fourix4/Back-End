@@ -29,13 +29,6 @@ public class  UsersService {
     private final UsersRepository usersRepository;
     private final JwtUtil jwtUtil;
 
-    public String loginCheck(String email) {
-        Users user = usersRepository.findByEmail(email);
-        JwtToken jwtToken = jwtUtil.generatedToken(email, user.getAuthor());
-
-        return jwtToken.getAccessToken();
-    }
-
     @Transactional
     public void logout(String token) {
         String accessToken = token.substring(7);

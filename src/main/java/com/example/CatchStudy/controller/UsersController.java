@@ -40,15 +40,6 @@ public class UsersController {
     private final BookingService bookingService;
     private final UsersRepository usersRepository;
 
-    @PostMapping("/login/kakao")
-    public Response loginCheck(@AuthenticationPrincipal OAuth2User oAuth2User){
-        if (oAuth2User == null) return Response.error("404", ErrorCode.USER_NOT_FOUND.getMessage());
-
-        String email = oAuth2User.getAttribute("email");
-
-        return Response.success(Result.toResponseDto(usersService.loginCheck(email)));
-    }
-
     @PostMapping("/logout")
     public Response logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
