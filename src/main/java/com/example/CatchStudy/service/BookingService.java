@@ -123,105 +123,115 @@ public class BookingService {
     @Transactional(readOnly = true)
     public BookingHistoryResponseDto getBookingHistory(Long userId) { // 최근 30개 예약 내역 조회
         List<Payment> payments = paymentRepository.findTop30ByBooking_User_UserIdOrderByPaymentTimeDesc(userId);
-        List<BookingHistoryDto> bookingDtos = new ArrayList<>();
-        return BookingHistoryResponseDto.toResponseDto(
-                payments.stream().map(payment -> BookingHistoryDto.toDto(
-                        payment.getBooking().getBookingId(),
-                        payment.getBooking().getStudyCafe().getCafeId(),
-                        payment.getBooking().getStudyCafe().getCafeName(),
-                        cafeImageRepository.findByStudyCafeCafeIdAndImageType(payment.getBooking().getStudyCafe().getCafeId(), ImageType.thumbnail).orElseThrow(
-                                () -> new CatchStudyException(ErrorCode.STUDYCAFE_IMAGE_NOT_FOUND)
-                        ).getCafeImage(),
-                        payment.getBooking().getSeatType(),
-                        payment.getBooking().getStudyCafe().getAddress(),
-                        payment.getPaymentTime(),
-                        payment.getBooking().getStartTime(),
-                        payment.getBooking().getEndTime(),
-                        payment.getAmount(),
-                        payment.getBooking().getStatus().getMessage()
+        List<BookingHistoryDto> bookingHistoryDtos = payments.stream().map(payment -> {
+            Booking booking = payment.getBooking();
+            StudyCafe studyCafe = booking.getStudyCafe();
+            String cafeImage =  cafeImageRepository.findByStudyCafeCafeIdAndImageType(studyCafe.getCafeId(),ImageType.thumbnail)
+                    .map(CafeImage::getCafeImage)
+                    .orElse("기본 thumbnail url");
 
+            return BookingHistoryDto.toDto(
+                    booking.getBookingId(),
+                    studyCafe.getCafeId(),
+                    studyCafe.getCafeName(),
+                    cafeImage,
+                    booking.getSeatType(),
+                    studyCafe.getAddress(),
+                    payment.getPaymentTime(),
+                    booking.getStartTime(),
+                    booking.getEndTime(),
+                    payment.getAmount(),
+                    booking.getStatus().getMessage()
+            );
+        }).collect(Collectors.toList());
 
-                )).collect(Collectors.toList())
-        );
+        return BookingHistoryResponseDto.toResponseDto(bookingHistoryDtos);
     }
 
     @Transactional(readOnly = true)
     public BookingHistoryByDateResponseDto getBookingHistoryByDate(Long userId, LocalDate startDate, LocalDate endDate, int page) { // 일정 기간 예약 내역 조회
-        List<Sort.Order> sort = new ArrayList<>();
-        sort.add(Sort.Order.asc("paymentTime"));
-        Pageable pageable = PageRequest.of(page - 1, 10);
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Order.asc("paymentTime")));
 
-        LocalDateTime startTime = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0);
-        LocalDateTime endTime = LocalDateTime.of(endDate.getYear(), endDate.getMonth(), endDate.getDayOfMonth(), 23, 59);
+        LocalDateTime startTime = startDate.atStartOfDay();
+        LocalDateTime endTime = endDate.atTime(LocalTime.MAX);
 
-        Page<Payment> paymentsPage = paymentRepository.findByBooking_User_UserIdAndPaymentTimeBetween(userId, startTime, endTime, pageable);
+        Page<Payment> paymentsPage = paymentRepository.findByBooking_User_UserIdAndPaymentTimeBetween(userId,startTime,endTime,pageable);
+        List<BookingHistoryDto> bookingDtos = paymentsPage.getContent().stream().map(payment -> {
+            Booking booking = payment.getBooking();
+            StudyCafe studyCafe = booking.getStudyCafe();
 
-        return BookingHistoryByDateResponseDto.toResponseDto(
-                paymentsPage.getContent().stream().map(payment -> BookingHistoryDto.toDto(
-                        payment.getBooking().getBookingId(),
-                        payment.getBooking().getStudyCafe().getCafeId(),
-                        payment.getBooking().getStudyCafe().getCafeName(),
-                        cafeImageRepository.findByStudyCafeCafeIdAndImageType(payment.getBooking().getStudyCafe().getCafeId(), ImageType.thumbnail).orElseThrow(
-                                () -> new CatchStudyException(ErrorCode.STUDYCAFE_IMAGE_NOT_FOUND)
-                        ).getCafeImage(),
-                        payment.getBooking().getSeatType(),
-                        payment.getBooking().getStudyCafe().getAddress(),
-                        payment.getPaymentTime(),
-                        payment.getBooking().getStartTime(),
-                        payment.getBooking().getEndTime(),
-                        payment.getAmount(),
-                        payment.getBooking().getStatus().getMessage()
+            String cafeImage = cafeImageRepository.findByStudyCafeCafeIdAndImageType(studyCafe.getCafeId(),ImageType.thumbnail)
+                    .map(CafeImage::getCafeImage)
+                    .orElse("기본 thumbnail url");
 
-                )).collect(Collectors.toList())
-        );
+            return BookingHistoryDto.toDto(
+                    booking.getBookingId(),
+                    studyCafe.getCafeId(),
+                    studyCafe.getCafeName(),
+                    cafeImage,
+                    booking.getSeatType(),
+                    studyCafe.getAddress(),
+                    payment.getPaymentTime(),
+                    booking.getStartTime(),
+                    booking.getEndTime(),
+                    payment.getAmount(),
+                    booking.getStatus().getMessage()
+            );
+        }).collect(Collectors.toList());
+
+        return BookingHistoryByDateResponseDto.toResponseDto(bookingDtos);
     }
 
     @Transactional(readOnly = true)
     public AvailableBookingResponseDto getAvailableBooking(Long userId) { //현재 예약 내용 조회
-        List<Booking> bookings = bookingRepository.getAvailableSeats(userId);
+        List<Booking> seats = bookingRepository.getAvailableSeats(userId);
         List<Booking> rooms = bookingRepository.getAvailableRooms(userId);
+        List<AvailableBookingSeatDto> bookingSeatDtos = seats.stream()
+                .map(booking -> {
+                    Payment payment = paymentRepository.findByBookingBookingId(booking.getBookingId())
+                            .orElseThrow(()-> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
+                    StudyCafe studyCafe = booking.getStudyCafe();
 
-        return AvailableBookingResponseDto.toResponseDto(
-                bookings.stream().map(booking -> AvailableBookingSeatDto.toDto( // '입실 전','입실 중' 인 좌석
-                                booking.getBookingId(),
-                                booking.getStudyCafe().getCafeName(),
-                                booking.getStatus().getMessage(),
-                                paymentRepository.findByPaymentId(booking.getBookingId()).orElseThrow(
-                                        () -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-                                ).getAmount(),
-                                booking.getStudyCafe().getAddress(),
-                                booking.getSeat().getSeatNumber(),
-                                booking.getCode(),
-                                paymentRepository.findByBookingBookingId(booking.getBookingId()).orElseThrow(
-                                        () -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-                                ).getPaymentTime(),
-                                booking.getStartTime(),
-                                booking.getEndTime(),
-                                paymentRepository.findByBookingBookingId(booking.getBookingId()).orElseThrow(
-                                        () -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-                                ).getPaymentTime().plusMinutes(30)
-                        )).sorted(Comparator.comparing(AvailableBookingSeatDto::getPayment_time)) // 결제 시간 순 정렬
-                        .collect(Collectors.toList()
-                        ),
+                    return AvailableBookingSeatDto.toDto(
+                            booking.getBookingId(),
+                            studyCafe.getCafeName(),
+                            booking.getStatus().getMessage(),
+                            payment.getAmount(),
+                            studyCafe.getAddress(),
+                            booking.getSeat().getSeatNumber(),
+                            booking.getCode(),
+                            payment.getPaymentTime(),
+                            booking.getStartTime(),
+                            booking.getEndTime(),
+                            payment.getPaymentTime().plusMinutes(30)
+                    );
+                })
+                .sorted(Comparator.comparing(AvailableBookingSeatDto::getPayment_time))
+                .collect(Collectors.toList());
 
-                rooms.stream().map(booking -> AvailableBookingRoomDto.toDto( // '입실 전','입실 중' 인 스터디룸
-                                booking.getBookingId(),
-                                booking.getStudyCafe().getCafeName(),
-                                booking.getStatus().getMessage(),
-                                paymentRepository.findByPaymentId(booking.getBookingId()).orElseThrow(
-                                        () -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-                                ).getAmount(),
-                                booking.getStudyCafe().getAddress(),
-                                booking.getBookedRoomInfo().getRoom().getRoomName(),
-                                booking.getCode(),
-                                paymentRepository.findByBookingBookingId(booking.getBookingId()).orElseThrow(
-                                        () -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-                                ).getPaymentTime(),
-                                booking.getStartTime(),
-                                booking.getEndTime()
-                        )).sorted(Comparator.comparing(AvailableBookingRoomDto::getStart_time)) //이용 시작 시간 순 정렬
-                        .collect(Collectors.toList())
-        );
+        List<AvailableBookingRoomDto> bookingRoomDtos = rooms.stream()
+                .map(booking -> {
+                    Payment payment = paymentRepository.findByBookingBookingId(booking.getBookingId())
+                            .orElseThrow(()-> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
+                    StudyCafe studyCafe = booking.getStudyCafe();
+
+                    return AvailableBookingRoomDto.toDto(
+                            booking.getBookingId(),
+                            studyCafe.getCafeName(),
+                            booking.getStatus().getMessage(),
+                            payment.getAmount(),
+                            studyCafe.getAddress(),
+                            booking.getBookedRoomInfo().getRoom().getRoomName(),
+                            booking.getCode(),
+                            payment.getPaymentTime(),
+                            booking.getStartTime(),
+                            booking.getEndTime()
+                    );
+                })
+                .sorted(Comparator.comparing(AvailableBookingRoomDto::getStart_time))
+                .collect(Collectors.toList());
+
+        return AvailableBookingResponseDto.toResponseDto(bookingSeatDtos, bookingRoomDtos);
     }
 
     @Transactional
