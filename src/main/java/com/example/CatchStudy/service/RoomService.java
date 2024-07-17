@@ -30,6 +30,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
 
+    @Transactional(readOnly = true)
     public List getBookingStatusByDate(Long roomId, String date, Integer time) { //날짜별 예약 현황
 
         Room room = roomRepository.findByRoomId(roomId).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
