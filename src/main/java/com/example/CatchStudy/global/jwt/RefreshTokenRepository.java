@@ -1,12 +1,13 @@
 package com.example.CatchStudy.global.jwt;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.concurrent.TimeUnit;
 
-
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
@@ -19,6 +20,7 @@ public class RefreshTokenRepository {
     }
 
     public String find(String accessToken) {
+        log.info(accessToken);
         return redisTemplate.opsForValue().get(KEY_PREFIX + accessToken);
     }
 
