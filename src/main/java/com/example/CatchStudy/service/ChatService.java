@@ -1,6 +1,7 @@
 package com.example.CatchStudy.service;
 
 import com.example.CatchStudy.domain.dto.request.ChatRoomRequestDto;
+import com.example.CatchStudy.domain.dto.request.MessageRequestDto;
 import com.example.CatchStudy.domain.dto.response.ChatRoomResponseDto;
 import com.example.CatchStudy.domain.dto.response.MessageResponseDto;
 import com.example.CatchStudy.domain.entity.ChatRoom;
@@ -58,5 +59,16 @@ public class ChatService {
 
     public List<MessageResponseDto> getMessageList(long chatRoomId) {
         return messageRepository.findByChatRoomId(chatRoomId).stream().map(MessageResponseDto::new).toList();
+    }
+
+    @Transactional
+    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto) {
+
+        Users user = usersRepository.findByUserId(messageRequestDto.getUserId()).
+                orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).
+                orElseThrow(() -> new CatchStudyException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        return new MessageResponseDto(messageRepository.save(new Message(messageRequestDto, user, chatRoom)));
     }
 }
