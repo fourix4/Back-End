@@ -1,7 +1,9 @@
 package com.example.CatchStudy.global.oauth;
 
+import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.global.jwt.JwtToken;
 import com.example.CatchStudy.global.jwt.JwtUtil;
+import com.example.CatchStudy.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,13 +25,17 @@ import java.util.Map;
 public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
-    private final ObjectMapper objectMapper;
+    private final UsersRepository usersRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        String email = (String) attributes.get("email");
+        Users users = usersRepository.findByEmail(email);
+        JwtToken jwtToken = jwtUtil.generatedToken(email, users.getAuthor());
 
-        // 인증 성공 후 리디렉션 수행
-        String redirectUrl = "http://localhost:3000/oauthkakao";
+        String redirectUrl = "http://localhost:3000/oauthkakao?accessToken=" + jwtToken.getAccessToken();
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

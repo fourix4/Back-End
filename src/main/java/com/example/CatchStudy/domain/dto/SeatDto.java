@@ -10,7 +10,7 @@ public class SeatDto {
 
     private Long seat_id;
     private String seat_number;
-    private Boolean isAvailable;
+    private Boolean is_available;
 
     public static SeatDto from(Seat entity) {
         return new SeatDto(
