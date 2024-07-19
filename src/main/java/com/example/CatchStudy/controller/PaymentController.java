@@ -39,6 +39,7 @@ public class PaymentController {
 
     @GetMapping("/payment/success/{userId}/{paymentId}")
     public String afterPayRequest(@RequestParam("pg_token") String pgToken, @PathVariable("userId") Long userId, @PathVariable("paymentId") Long paymentId) { //결제 성공
+        paymentService.kakaoPayApprove(pgToken,userId,paymentId);
         return "redirect:http://localhost:3000/payment-success";
     }
 }
