@@ -25,4 +25,14 @@ public class ChatNotification {
 
     @Column
     private boolean status;
+
+    public ChatNotification(ChatRoom chatRoom, Users user) {
+        this.chatRoom = chatRoom;
+        this.user = user;
+        this.status = false;
+    }
+
+    public void readNotification() {
+        this.status = true;
+    }
 }

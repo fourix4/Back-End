@@ -20,12 +20,12 @@ public class ChatRoomResponseDto {
         this.chatRoomId = chatRoom.getChatRoomId();
     }
 
-    public ChatRoomResponseDto(ChatRoom chatRoom, Message message) {
+    public ChatRoomResponseDto(ChatRoom chatRoom, Message message, boolean status) {
         this.chatRoomId = chatRoom.getChatRoomId();
         this.cafeId = chatRoom.getStudyCafe().getCafeId();
         this.cafeName = chatRoom.getStudyCafe().getCafeName();
         this.lastChat = message.getChat();
         this.lastChatDate = message.getCreateDate();
-        this.status = chatRoom.getStatus();
+        this.status = status;
     }
 }

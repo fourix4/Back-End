@@ -6,6 +6,7 @@ import com.example.CatchStudy.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,11 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
 
     private final ChatService chatService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/{chatRoomId}/chat")
+    @SendTo("/sub/{chatRoomId}/chat")
     public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto) {
         MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto);
-        simpMessagingTemplate.convertAndSend("/sub/" + messageRequestDto.getChatRoomId() + "/chat");
     }
 }

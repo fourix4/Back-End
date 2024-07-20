@@ -4,22 +4,23 @@ import com.example.CatchStudy.domain.dto.request.ChatRoomRequestDto;
 import com.example.CatchStudy.domain.dto.request.MessageRequestDto;
 import com.example.CatchStudy.domain.dto.response.ChatRoomResponseDto;
 import com.example.CatchStudy.domain.dto.response.MessageResponseDto;
-import com.example.CatchStudy.domain.entity.ChatRoom;
-import com.example.CatchStudy.domain.entity.Message;
-import com.example.CatchStudy.domain.entity.StudyCafe;
-import com.example.CatchStudy.domain.entity.Users;
+import com.example.CatchStudy.domain.entity.*;
+import com.example.CatchStudy.global.enums.Author;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
-import com.example.CatchStudy.repository.ChatRoomRepository;
-import com.example.CatchStudy.repository.MessageRepository;
-import com.example.CatchStudy.repository.StudyCafeRepository;
-import com.example.CatchStudy.repository.UsersRepository;
+import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 @Transactional
@@ -31,9 +32,12 @@ public class ChatService {
     private final UsersRepository usersRepository;
     private final StudyCafeRepository studyCafeRepository;
     private final UsersService usersService;
+    private final ChatNotificationRepository chatNotificationRepository;
+    private final Map<Long, List<Long>> chatRoomMap = new ConcurrentHashMap<>(); // chatRoomId, 접속한 유저 ID들
 
+    @Transactional
     public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
-        Users user = usersRepository.findByUserId(chatRoomRequestDto.getUserId()).
+        Users user = usersRepository.findByUserId(usersService.getCurrentUserId()).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(chatRoomRequestDto.getCafeId()).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
@@ -46,29 +50,83 @@ public class ChatService {
     public List<ChatRoomResponseDto> getChatRoomList() {
         List<ChatRoomResponseDto> chatRoomResponseDtoList = new ArrayList<>();
         long userId = usersService.getCurrentUserId();
+        Users user = usersRepository.findByUserId(userId).
+                orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         List<ChatRoom> chatRoomList = chatRoomRepository.findByUserId(userId);
 
         for(ChatRoom chatRoom : chatRoomList) {
             Message message = messageRepository.findTopByChatRoomIdOrderByCreateDateDesc(chatRoom.getChatRoomId()).
                     orElse(new Message());
-            chatRoomResponseDtoList.add(new ChatRoomResponseDto(chatRoom, message));
+            ChatNotification chatNotification = chatNotificationRepository.findFirstByChatRoomAndUserOrderByChatNotificationIdDesc(chatRoom, user)
+                    .orElse(null);
+            boolean status = chatNotification == null || chatNotification.isStatus();   // null 인 경우 알림 x 이므로 true
+
+            chatRoomResponseDtoList.add(new ChatRoomResponseDto(chatRoom, message, status));
         }
 
         return chatRoomResponseDtoList;
     }
 
+    @Transactional
     public List<MessageResponseDto> getMessageList(long chatRoomId) {
+        long userId = usersService.getCurrentUserId();
+        List<ChatNotification> chatNotificationList = chatNotificationRepository.findAllByChatRoom_ChatRoomIdAndUser_UserId(chatRoomId, userId);
+        // 알림 읽음 처리
+        for(ChatNotification chatNotification : chatNotificationList) {
+           chatNotification.readNotification();
+        }
+
         return messageRepository.findByChatRoomId(chatRoomId).stream().map(MessageResponseDto::new).toList();
     }
 
     @Transactional
     public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto) {
 
-        Users user = usersRepository.findByUserId(messageRequestDto.getUserId()).
+        Users user = usersRepository.findByUserId(usersService.getCurrentUserId()).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.CHATROOM_NOT_FOUND));
 
+        int userCount = chatRoomMap.get(chatRoomId).size(); // 참여중인 채탕방의 유저 수 1 or 2
+
+        if(userCount == 1) {
+            if(user.getAuthor().equals(Author.roleUser)) {
+                Users studyCafeUser = usersRepository.findByUserId(chatRoom.getStudyCafe().getUser().getUserId()).
+                        orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+                chatNotificationRepository.save(new ChatNotification(chatRoom, studyCafeUser));
+            } else {
+                Users client =  chatRoom.getUser();
+                chatNotificationRepository.save(new ChatNotification(chatRoom, client));
+            }
+        }
+
         return new MessageResponseDto(messageRepository.save(new Message(messageRequestDto, user, chatRoom)));
+    }
+
+    @EventListener
+    public void handleSessionConnect(SessionConnectEvent event) {
+        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("simpDestination"));
+        long userId = usersService.getCurrentUserId();
+
+        List<Long> userList = chatRoomMap.get(chatRoomId);
+        if (userList == null) userList = new ArrayList<>();
+        userList.add(userId);
+
+        chatRoomMap.put(chatRoomId, userList);
+    }
+
+    @EventListener
+    public void handleSessionDisconnect(SessionDisconnectEvent event) {
+        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("simpDestination"));
+        long userId = usersService.getCurrentUserId();
+
+        List<Long> userList = chatRoomMap.get(chatRoomId);
+        if(userList == null) return;
+        userList.remove(userId);
+
+        if (userList.isEmpty()) chatRoomMap.remove(chatRoomId);
+        else chatRoomMap.put(chatRoomId, userList);
+
+        chatRoomMap.put(chatRoomId, userList);
     }
 }
