@@ -14,9 +14,6 @@ public class ChatRoom {
     @Column(name = "chat_room_id")
     private Long chatRoomId;
 
-    @Column
-    private Boolean status; //true:읽음
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
@@ -24,4 +21,9 @@ public class ChatRoom {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
+
+    public ChatRoom(Users user, StudyCafe studyCafe) {
+        this.user = user;
+        this.studyCafe = studyCafe;
+    }
 }
