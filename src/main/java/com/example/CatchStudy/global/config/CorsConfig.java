@@ -18,7 +18,7 @@ public class CorsConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
         // 리소스 허용할 URL 지정
-        corsConfig.addAllowedOriginPattern("*");
+        corsConfig.addAllowedOriginPattern("http://localhost:3000");
         corsConfig.addAllowedMethod("*");        // 허용 메소드 지정
         corsConfig.addAllowedHeader("*");        // 허용 header 지정
         corsConfig.setAllowCredentials(true);    // 인증, 인가 정보 허용
