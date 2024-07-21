@@ -1,5 +1,6 @@
 package com.example.CatchStudy.domain.entity;
 
+import com.example.CatchStudy.domain.dto.request.MessageRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,4 +33,11 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
+
+    public Message(MessageRequestDto messageRequestDto, Users user, ChatRoom chatRoom) {
+        this.chat = messageRequestDto.getChat();
+        this.createDate = LocalDateTime.now();
+        this.chatRoom = chatRoom;
+        this.user = user;
+    }
 }
