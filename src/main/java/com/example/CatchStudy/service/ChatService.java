@@ -112,13 +112,9 @@ public class ChatService {
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
-        MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
-        System.out.println("-------- message : " + event.getMessage());
-        System.out.println("-------- accessor : " + accessor.toString());
-        GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
-        Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
-        Long chatRoomId = Long.parseLong ((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
-        String sessionId = (String) generic.getHeaders().get("simpSessionId");
+        Map nativeHeaders = (Map) event.getMessage().getHeaders().get("nativeHeaders");
+        Long chatRoomId = Long.parseLong ((String) ((List) nativeHeaders.get("chatRoodID")).get(0));
+        String sessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
         long userId = usersService.getCurrentUserId();
 
         Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
