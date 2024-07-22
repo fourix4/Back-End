@@ -40,6 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwtUtil.validateAccessToken(accessToken);
             Authentication authentication = jwtUtil.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication); // 검증 후 security context 인증 정보 저장
+            System.out.println("-------------- authentication + " + authentication);
+            System.out.println("-------------- 저장 후, " + SecurityContextHolder.getContext().getAuthentication());
         } catch (ExpiredJwtException e) {   // 만료 에러 발생
             // refreshToken 존재시
             if(jwtUtil.validateRefreshToken(accessToken)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
-
+        System.out.println("--------- token : " + token);
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
