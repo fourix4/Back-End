@@ -11,12 +11,18 @@ import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.messaging.support.NativeMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +39,8 @@ public class ChatService {
     private final StudyCafeRepository studyCafeRepository;
     private final UsersService usersService;
     private final ChatNotificationRepository chatNotificationRepository;
-    private final Map<Long, List<Long>> chatRoomMap = new ConcurrentHashMap<>(); // chatRoomId, 접속한 유저 ID들
+    private final Map<Long, Map<String, Long>> chatRoomMap = new ConcurrentHashMap<>(); // chatRoomId, <session id, 접속한 유저 id>
+    private final Map<String, Long> sessionToChatRoom = new ConcurrentHashMap<>();
 
     @Transactional
     public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto chatRoomRequestDto) {
@@ -105,28 +112,29 @@ public class ChatService {
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
-        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("chatRoomId"));
+        MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
+        GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
+        Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
+        Long chatRoomId = Long.parseLong ((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
+        String sessionId = (String) generic.getHeaders().get("simpSessionId");
         long userId = usersService.getCurrentUserId();
 
-        List<Long> userList = chatRoomMap.get(chatRoomId);
-        if (userList == null) userList = new ArrayList<>();
-        userList.add(userId);
+        Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
+        userMap.put(sessionId, userId);
 
-        chatRoomMap.put(chatRoomId, userList);
+        chatRoomMap.put(chatRoomId, userMap);
+        sessionToChatRoom.put(sessionId, chatRoomId);
     }
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("chatRoomId"));
-        long userId = usersService.getCurrentUserId();
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = headerAccessor.getSessionId();
+        Long chatRoomId = sessionToChatRoom.get(sessionId);
 
-        List<Long> userList = chatRoomMap.get(chatRoomId);
-        if(userList == null) return;
-        userList.remove(userId);
+        Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
+        userMap.remove(sessionId);
 
-        if (userList.isEmpty()) chatRoomMap.remove(chatRoomId);
-        else chatRoomMap.put(chatRoomId, userList);
-
-        chatRoomMap.put(chatRoomId, userList);
+        if (userMap.isEmpty()) chatRoomMap.remove(chatRoomId);
     }
 }
