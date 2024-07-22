@@ -105,7 +105,7 @@ public class ChatService {
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
-        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("simpDestination"));
+        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("chatRoomId"));
         long userId = usersService.getCurrentUserId();
 
         List<Long> userList = chatRoomMap.get(chatRoomId);
@@ -117,7 +117,7 @@ public class ChatService {
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("simpDestination"));
+        long chatRoomId = Long.parseLong((String) event.getMessage().getHeaders().get("chatRoomId"));
         long userId = usersService.getCurrentUserId();
 
         List<Long> userList = chatRoomMap.get(chatRoomId);
