@@ -113,6 +113,8 @@ public class ChatService {
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
         MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
+        System.out.println("-------- message : " + event.getMessage());
+        System.out.println("-------- accessor : " + accessor.toString());
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
         Long chatRoomId = Long.parseLong ((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
@@ -134,7 +136,9 @@ public class ChatService {
 
         Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
         userMap.remove(sessionId);
+        sessionToChatRoom.remove(sessionId);
 
         if (userMap.isEmpty()) chatRoomMap.remove(chatRoomId);
+        else chatRoomMap.put(chatRoomId, userMap);
     }
 }
