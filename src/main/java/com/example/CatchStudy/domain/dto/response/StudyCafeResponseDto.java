@@ -3,11 +3,13 @@ package com.example.CatchStudy.domain.dto.response;
 import com.example.CatchStudy.domain.entity.StudyCafe;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 @AllArgsConstructor
 public class StudyCafeResponseDto {
 

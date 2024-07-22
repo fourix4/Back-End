@@ -113,41 +113,11 @@ public class ChatService {
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
         MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
-        System.out.println("-------- message : " + event.getMessage());
-        System.out.println("-------- accessor : " + accessor.toString());
-
-        // simpConnectMessage 헤더가 존재하는지 확인
-        if (accessor.getHeader("simpConnectMessage") == null) {
-            System.out.println("simpConnectMessage 헤더가 존재하지 않습니다.");
-            return;
-        }
 
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
-
-        if (generic == null) {
-            System.out.println("generic 객체가 null입니다.");
-            return;
-        }
-
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
-        if (nativeHeaders == null) {
-            System.out.println("nativeHeaders가 존재하지 않습니다.");
-            return;
-        }
-
-        Long chatRoomId;
-        try {
-            chatRoomId = Long.parseLong((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
-        } catch (Exception e) {
-            System.out.println("chatRoomId를 파싱하는 중 오류 발생: " + e.getMessage());
-            return;
-        }
-
+        Long chatRoomId = Long.parseLong((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
         String sessionId = (String) generic.getHeaders().get("simpSessionId");
-        if (sessionId == null) {
-            System.out.println("sessionId가 존재하지 않습니다.");
-            return;
-        }
 
         long userId = usersService.getCurrentUserId();
 
