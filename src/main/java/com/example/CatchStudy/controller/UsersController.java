@@ -40,6 +40,11 @@ public class UsersController {
     private final BookingService bookingService;
     private final UsersRepository usersRepository;
 
+    @GetMapping("")
+    public Response getUserInfo() {
+        return Response.success(Result.toResponseDto(usersService.getUserInfo()));
+    }
+
     @PostMapping("/logout")
     public Response logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
