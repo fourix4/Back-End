@@ -27,8 +27,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +40,6 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
-    private final ScheduledExecutorService scheduler;
-
     private final QuartzSchedulerService quartzSchedulerService;
 
     @Transactional
