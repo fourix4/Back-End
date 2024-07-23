@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Response<T> {
 
-    private int code;
+    private Integer code;
     private String message;
     private Result data;
     public static Response<Void> error(String errorCode, String message) {
