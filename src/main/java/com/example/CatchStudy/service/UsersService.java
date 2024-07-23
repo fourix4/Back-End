@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,11 +63,17 @@ public class  UsersService {
         usersRepository.deleteByEmail(email);
     }
 
+    public UsersResponseDto getUserInfo() {
+        String email = getEmail();
+
+        return new UsersResponseDto(usersRepository.findByEmail(email));
+    }
+
     private String getEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
 
-        if (authentication != null && authentication.getPrincipal() instanceof User user) email = user.getUsername();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) email = userDetails.getUsername();
         else throw new CatchStudyException(ErrorCode.USER_NOT_FOUND);
 
         return email;

@@ -3,7 +3,9 @@ package com.example.CatchStudy.domain.dto.response;
 import com.example.CatchStudy.domain.entity.Users;
 import com.example.CatchStudy.global.enums.Author;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class UsersResponseDto {
 

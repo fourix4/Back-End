@@ -20,7 +20,6 @@ public class RefreshTokenRepository {
     }
 
     public String find(String accessToken) {
-        log.info(accessToken);
         return redisTemplate.opsForValue().get(KEY_PREFIX + accessToken);
     }
 

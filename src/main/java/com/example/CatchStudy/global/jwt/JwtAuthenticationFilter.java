@@ -53,7 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
-
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
