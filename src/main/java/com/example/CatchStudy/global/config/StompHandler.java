@@ -31,9 +31,15 @@ public class StompHandler implements ChannelInterceptor {
 
         System.out.println("-------------accessor : " + accessor);
         System.out.println("--------accessor header : " + accessor.getNativeHeader("Authorization"));
-        // 연결 요청에 대해 실행
-        if(accessor.getCommand() == StompCommand.CONNECT) {
+        // 연결, 해제, 메시지 전송 요청에 대해 실행
+        if((accessor.getCommand() == StompCommand.CONNECT) || (accessor.getCommand() == StompCommand.DISCONNECT)
+            || (accessor.getCommand() == StompCommand.SEND)) {
+
             accessToken = accessor.getFirstNativeHeader("Authorization");
+
+            if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+                accessToken = accessToken.substring(7);
+            }
 
             try {
                 jwtUtil.validateAccessToken(accessToken);
@@ -44,10 +50,6 @@ public class StompHandler implements ChannelInterceptor {
             Authentication authentication = jwtUtil.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             accessor.setUser(authentication);
-        }
-
-        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7);
         }
 
         return message;
