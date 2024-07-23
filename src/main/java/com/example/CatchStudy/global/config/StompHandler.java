@@ -34,21 +34,21 @@ public class StompHandler implements ChannelInterceptor {
         // 연결 요청에 대해 실행
         if(accessor.getCommand() == StompCommand.CONNECT) {
             accessToken = accessor.getFirstNativeHeader("Authorization");
+
+            try {
+                jwtUtil.validateAccessToken(accessToken);
+            } catch (ExpiredJwtException e) {
+                throw new CatchStudyException(ErrorCode.EXPIRED_ACCESS_TOKEN);
+            }
+
+            Authentication authentication = jwtUtil.getAuthentication(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            accessor.setUser(authentication);
         }
 
         if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             accessToken = accessToken.substring(7);
         }
-
-        try {
-            jwtUtil.validateAccessToken(accessToken);
-        } catch (ExpiredJwtException e) {
-            throw new CatchStudyException(ErrorCode.EXPIRED_ACCESS_TOKEN);
-        }
-
-        Authentication authentication = jwtUtil.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        accessor.setUser(authentication);
 
         return message;
     }
