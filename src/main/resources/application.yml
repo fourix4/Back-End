@@ -27,7 +27,7 @@ spring:
   quartz:
     scheduler-name: QuartzScheduler
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
     job-store-type: jdbc
 
   data:
