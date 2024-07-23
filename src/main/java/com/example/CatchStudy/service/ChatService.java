@@ -80,7 +80,7 @@ public class ChatService {
         List<ChatNotification> chatNotificationList = chatNotificationRepository.findAllByChatRoom_ChatRoomIdAndUser_UserId(chatRoomId, userId);
         // 알림 읽음 처리
         for(ChatNotification chatNotification : chatNotificationList) {
-            chatNotification.readNotification();
+           chatNotification.readNotification();
         }
 
         return messageRepository.findByChatRoomId(chatRoomId).stream().map(MessageResponseDto::new).toList();
@@ -113,13 +113,9 @@ public class ChatService {
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        System.out.println("chatService : " + accessor);
 
-        GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
-        Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
-        Long chatRoomId = Long.parseLong((String) ((List) nativeHeaders.get("chatRoomId")).get(0));
-        String sessionId = (String) generic.getHeaders().get("simpSessionId");
-
+        Long chatRoomId = Long.parseLong((String) ((List) accessor.getNativeHeader("chatRoomId")).get(0));
+        String sessionId = accessor.getSessionId();
         long userId = usersService.getCurrentUserId();
 
         Map<String, Long> userMap = chatRoomMap.getOrDefault(chatRoomId, new HashMap<>());
@@ -131,8 +127,8 @@ public class ChatService {
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = headerAccessor.getSessionId();
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = accessor.getSessionId();
         Long chatRoomId = sessionToChatRoom.get(sessionId);
 
         Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
@@ -142,4 +138,6 @@ public class ChatService {
         if (userMap.isEmpty()) chatRoomMap.remove(chatRoomId);
         else chatRoomMap.put(chatRoomId, userMap);
     }
+
+
 }
