@@ -39,7 +39,11 @@ public enum ErrorCode {
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "잘못된 확장자입니다."),
     IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제 중 에러가 발생했습니다."),
 
-    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방을 찾을 수 없습니다.")
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 채팅방을 찾을 수 없습니다."),
+
+    //Quartz Error
+    QUARTZ_SCHEDULER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"스케줄러 오류입니다"),
+
     ;
 
     private HttpStatus status;

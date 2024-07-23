@@ -12,6 +12,7 @@ import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -45,9 +45,9 @@ public class BookingService {
     private final CafeImageRepository cafeImageRepository;
     private final UsageFeeRepository usageFeeRepository;
 
-    private final ScheduledExecutorService scheduler;
+    private final QuartzSchedulerService quartzSchedulerService;
 
-    private final SchedulerService schedulerService;
+
 
 
 
@@ -243,7 +243,13 @@ public class BookingService {
 
         LocalDateTime nowTime = LocalDateTime.now();
         booking.checkInSeatBooking(nowTime,booking.getTime());
-        checkAndCheckOutSeatBooking(booking.getBookingId(),nowTime.plusMinutes(booking.getTime()));
+
+        try {
+            quartzSchedulerService.scheduleCheckOutSeatBooking(booking.getBookingId(),nowTime.plusMinutes(booking.getTime()));
+
+        }catch (SchedulerException e){
+            throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+        }
     }
 
     @Transactional
@@ -256,11 +262,7 @@ public class BookingService {
         booking.getSeat().checkOutSeat(true);
     }
 
-    public void checkAndCheckOutSeatBooking(Long bookingId,LocalDateTime checkOutTime){
-        LocalDateTime now = LocalDateTime.now();
-        long delay = Duration.between(now,checkOutTime).toMillis();
-        scheduler.schedule(()->schedulerService.checkAndCheckOutSeatBooking(bookingId),delay, TimeUnit.MILLISECONDS);
-    }
+
 
     @Transactional
     public void deleteBooking(Long paymentId) {

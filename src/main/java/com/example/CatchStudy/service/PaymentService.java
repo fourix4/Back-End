@@ -14,6 +14,7 @@ import com.example.CatchStudy.global.kakaopay.KakaoPayProperties;
 import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class PaymentService {
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
     private final ScheduledExecutorService scheduler;
 
-    private final SchedulerService schedulerService;
+    private final QuartzSchedulerService quartzSchedulerService;
 
     @Transactional
     public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
@@ -77,6 +78,7 @@ public class PaymentService {
         return kakaoReady.toDto();
 
     }
+
     @Transactional
     public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) { //카카오 페이에 승인 요청
 
@@ -102,19 +104,35 @@ public class PaymentService {
 
         //좌석,room 사용중으로 변경,  booking 테이블 변경 (상태,code), payment 테이블 변경 (amount,승인시간,status)
         String code = makeCode();
-        booking.completeBooking(BookingStatus.beforeEnteringRoom,makeCode());
-        payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve,kakaoApprove.getAmount().getTotal());
+        booking.completeBooking(BookingStatus.beforeEnteringRoom, makeCode());
+        payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve, kakaoApprove.getAmount().getTotal());
 
-        if(booking.getBookedRoomInfo() == null){ //좌석 일 때
+        if (booking.getBookedRoomInfo() == null) { //좌석 일 때
             booking.getSeat().updateSeatStatus(false);
-            scheduleStatusCheck(booking.getBookingId(),payment); //30 분 후 좌석 상태 확인 작업 스케줄;
-        }else{
-            scheduleRoomEnterUpdate(booking.getBookingId(),booking.getStartTime());  //  스터디룸 입실 시간이 되었을 때 작업 스케줄
-            scheduleCheckOutRoomBooking(booking.getBookingId(),booking.getEndTime()); // 스터디룸 퇴실 시간이 되었을 때 작업 스케줄
+
+            try {
+                quartzSchedulerService.scheduleBookingSeatStatusCheck(booking.getBookingId(), payment); //30 분 후 좌석 상태 확인 작업 스케줄;
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
+
+        } else {
+            try {
+                quartzSchedulerService.scheduleRoomEnterUpdate(booking.getBookingId(), booking.getStartTime()); //스터디룸 입실 시간이 되었을 때 작업 스케줄
+
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
+
+            try {
+                quartzSchedulerService.scheduleCheckOutRoomBooking(booking.getBookingId(), booking.getEndTime()); //스터디룸 퇴실 시간이 되었을 때 작업 스케줄
+
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
         }
 
         return kakaoApprove;
-
     }
 
     @Transactional
@@ -150,35 +168,14 @@ public class PaymentService {
 
         // 결제 환불 후 예약 스터디룸 정보 삭제
         payment.getBooking().cancelBooking(BookingStatus.canceled);
-        payment.cancelPayment(PaymentStatus.cancel,kakaoCancel.getCanceled_at());
+        payment.cancelPayment(PaymentStatus.cancel, kakaoCancel.getCanceled_at());
         payment.getBooking().deleteRoomInfo();
         bookedRoomInfoRepository.delete(bookedRoomInfo);
     }
 
-    private void printInfo(){
+    private void printInfo() {
         boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
-        log.info("tx active={}",txActive );
-    }
-
-    public void scheduleStatusCheck(Long bookingId, Payment payment) { // 좌석 결제 30분 후 입실 상태 확인
-        printInfo();
-        LocalDateTime paymentTime = payment.getPaymentTime();
-        long delay = Duration.between(LocalDateTime.now(), paymentTime.plusMinutes(30)).toMillis();
-        if(delay>0){
-            scheduler.schedule(() -> schedulerService.checkAndCancelBooking(bookingId), delay, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    public void scheduleRoomEnterUpdate(Long bookingId,LocalDateTime checkInTime) { // 스터디룸 입실 시간 되면 booking 테이블 '입실 중' 변경
-        LocalDateTime now = LocalDateTime.now();
-        long delay = Duration.between(now, checkInTime).toMillis(); // 입장 시간 1분전 부터 '입장 중'
-        scheduler.schedule(() -> schedulerService.checkAndCheckInRoomBooking(bookingId), delay, TimeUnit.MILLISECONDS);
-    }
-
-    public void scheduleCheckOutRoomBooking(Long bookingId,LocalDateTime checkOutTime){ // 스터디룸 퇴실 시간이 되면 booking 테이블 '이용 완료' 변경
-        LocalDateTime now = LocalDateTime.now();
-        long delay = Duration.between(now,checkOutTime).toMillis();
-        scheduler.schedule(()->schedulerService.checkAndCheckOutRoomBooking(bookingId),delay,TimeUnit.MILLISECONDS);
+        log.info("tx active={}", txActive);
     }
 
     private HttpHeaders getHeaders() {
