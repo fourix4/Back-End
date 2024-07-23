@@ -63,6 +63,12 @@ public class  UsersService {
         usersRepository.deleteByEmail(email);
     }
 
+    public UsersResponseDto getUserInfo() {
+        String email = getEmail();
+
+        return new UsersResponseDto(usersRepository.findByEmail(email));
+    }
+
     private String getEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
