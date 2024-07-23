@@ -193,6 +193,7 @@ public class BookingService {
 
                     return AvailableBookingSeatDto.toDto(
                             booking.getBookingId(),
+                            studyCafe.getCafeId(),
                             studyCafe.getCafeName(),
                             booking.getStatus().getMessage(),
                             payment.getAmount(),
@@ -216,6 +217,7 @@ public class BookingService {
 
                     return AvailableBookingRoomDto.toDto(
                             booking.getBookingId(),
+                            studyCafe.getCafeId(),
                             studyCafe.getCafeName(),
                             booking.getStatus().getMessage(),
                             payment.getAmount(),
