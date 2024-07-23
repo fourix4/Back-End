@@ -29,9 +29,7 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         String accessToken = "";
 
-        System.out.println("-------------accessor : " + accessor);
-        System.out.println("--------accessor header : " + accessor.getNativeHeader("Authorization"));
-        // 연결, 해제, 메시지 전송 요청에 대해 실행
+        // 연결, 메시지 구독, 메시지 전송 요청에 대해 실행
         if((accessor.getCommand() == StompCommand.CONNECT) || (accessor.getCommand() == StompCommand.SEND)
                 || (accessor.getCommand() == StompCommand.SUBSCRIBE)) {
 
