@@ -33,7 +33,7 @@ public class StompHandler implements ChannelInterceptor {
         System.out.println("--------accessor header : " + accessor.getNativeHeader("Authorization"));
         // 연결, 해제, 메시지 전송 요청에 대해 실행
         if((accessor.getCommand() == StompCommand.CONNECT) || (accessor.getCommand() == StompCommand.DISCONNECT)
-            || (accessor.getCommand() == StompCommand.SEND)) {
+            || (accessor.getCommand() == StompCommand.SEND) || (accessor.getCommand() == StompCommand.SUBSCRIBE)) {
 
             accessToken = accessor.getFirstNativeHeader("Authorization");
 
