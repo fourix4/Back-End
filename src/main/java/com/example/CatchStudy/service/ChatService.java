@@ -80,7 +80,7 @@ public class ChatService {
         List<ChatNotification> chatNotificationList = chatNotificationRepository.findAllByChatRoom_ChatRoomIdAndUser_UserId(chatRoomId, userId);
         // 알림 읽음 처리
         for(ChatNotification chatNotification : chatNotificationList) {
-           chatNotification.readNotification();
+            chatNotification.readNotification();
         }
 
         return messageRepository.findByChatRoomId(chatRoomId).stream().map(MessageResponseDto::new).toList();
@@ -112,7 +112,8 @@ public class ChatService {
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
-        MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        System.out.println("chatService : " + accessor);
 
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
