@@ -27,6 +27,6 @@ public class StudyCafeController {
                                              @RequestParam(required = false) String town,
                                              @RequestParam(defaultValue = "1") int page) {
 
-        return Response.success(Result.toResponseDto((studyCafeService.searchStudyCafes(city, country, town, page))));
+        return Response.success(Result.toResponseDto((studyCafeService.searchStudyCafes(city, country, town, page)).getContent()));
     }
 }

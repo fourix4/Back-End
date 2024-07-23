@@ -33,6 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = resolveToken(request);
+        String uri = request.getRequestURI();
+
+        if (uri.equals("/api/users/reissuance")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if(accessToken == null) {
             filterChain.doFilter(request, response);
