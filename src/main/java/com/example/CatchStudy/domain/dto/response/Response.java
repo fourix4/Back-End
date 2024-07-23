@@ -9,18 +9,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Response<T> {
 
-    private String code;
+    private Integer code;
     private String message;
     private Result data;
     public static Response<Void> error(String errorCode, String message) {
-        return new Response<>(errorCode, message, null);
+        return new Response<>(Integer.valueOf(errorCode), message, null);
     }
     public static Response success(Result data) {
-        return new Response<>("200", "success", data);
+        return new Response<>(200, "success", data);
     }
 
     public static Response<Void> success() {
-        return new Response<Void>("200", "success", null);
+        return new Response<Void>(200, "success", null);
     }
 
 }

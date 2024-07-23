@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class AvailableBookingSeatDto {
 
     private Long booking_id;
+    private Long cafe_id;
     private String cafe_name;
     private String status;
     private Integer amount;
@@ -26,11 +27,12 @@ public class AvailableBookingSeatDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime start_available_time;
 
-    public static AvailableBookingSeatDto toDto(Long bookingId,String cafeName,String status,
+    public static AvailableBookingSeatDto toDto(Long bookingId,Long cafeId,String cafeName,String status,
                                                 Integer amount,String address,String seatNumber,String code,LocalDateTime paymentTime,
                                                 LocalDateTime startTime,LocalDateTime endTime,LocalDateTime startAvailableTime) {
         return new AvailableBookingSeatDto(
                 bookingId,
+                cafeId,
                 cafeName,
                 status,
                 amount,
