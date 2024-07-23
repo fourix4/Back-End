@@ -8,6 +8,7 @@ import com.example.CatchStudy.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,15 @@ public class QuartzConfig {
     private final QuartzJobListener quartzJobListener;
 
     private final QuartzTriggerListener quartzTriggerListener;
+
+    @Value("${spring.datasource.url}")
+    private String url;
+
+    @Value("${spring.datasource.username}")
+    private String userName;
+
+    @Value("${spring.datasource.password}")
+    private String password;
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean(DataSource dataSource, PlatformTransactionManager transactionManager, ApplicationContext applicationContext) {
@@ -58,6 +68,9 @@ public class QuartzConfig {
         } catch (IOException e) {
             throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
         }
+        properties.put("org.quartz.dataSource.quartz.URL",url);
+        properties.put("org.quartz.dataSource.quartz.user",userName);
+        properties.put("org.quartz.dataSource.quartz.password",password);
 
         return properties;
     }
