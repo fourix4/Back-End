@@ -45,6 +45,12 @@ public class UsersController {
         return Response.success(Result.toResponseDto(usersService.getUserInfo()));
     }
 
+    @GetMapping("/check")
+    public Response checkUser() {
+        usersService.getCurrentUserId();
+        return Response.success();
+    }
+
     @PostMapping("/logout")
     public Response logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
