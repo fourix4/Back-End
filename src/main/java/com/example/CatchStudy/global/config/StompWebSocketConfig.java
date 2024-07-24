@@ -27,12 +27,6 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
         registry.addEndpoint("/ws")
-                .setHandshakeHandler(new DefaultHandshakeHandler() {
-                    @Override
-                    protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-                        return SecurityContextHolder.getContext().getAuthentication();
-                    }
-                })
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
