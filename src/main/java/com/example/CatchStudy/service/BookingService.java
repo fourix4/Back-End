@@ -58,7 +58,7 @@ public class BookingService {
         if (dto.getType() == SeatType.seat) {
             Seat seat = seatRepository.findBySeatIdLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
             if (!seat.getIsAvailable()) {
-                throw new CatchStudyException(ErrorCode.SEAT_NOT_AVAILABLE);
+                throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
             }
             if (bookingRepository.existsBySeatSeatId(seat.getSeatId())) {
                 throw new CatchStudyException(ErrorCode.SEAT_NOT_SELECT);
@@ -70,7 +70,7 @@ public class BookingService {
             Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
 
             if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), dto.getStartTime(), dto.getStartTime().plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
-                throw new CatchStudyException(ErrorCode.ROOM_NOT_AVAILABLE);
+                throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
             }
 
             //예약 시작 시간 / 퇴실 시간 저장
