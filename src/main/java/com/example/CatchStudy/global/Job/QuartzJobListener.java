@@ -28,7 +28,7 @@ public class QuartzJobListener implements JobListener {
 
     @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) { //Job이 실행된 후에 호출
-        if (ObjectUtils.isEmpty(jobException)) {
+        if (!ObjectUtils.isEmpty(jobException)) {
             log.info("Job execution resulted in exception: {}", context.getJobDetail().getKey(), jobException);
         } else {
             log.info("Job was executed successfully: {}", context.getJobDetail().getKey());

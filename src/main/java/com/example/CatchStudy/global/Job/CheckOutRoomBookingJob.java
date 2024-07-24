@@ -39,7 +39,7 @@ public class CheckOutRoomBookingJob implements Job {
                 return null;
             });
         } catch (Exception e) {
-            log.error("Job execution resulted in exception: ", e);
+            log.error("Job execution execute resulted in exception: ", e);
             throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
         }
     }
