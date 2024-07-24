@@ -72,7 +72,8 @@ public class  UsersService {
     private String getEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = "";
-
+        UserDetails user = (UserDetails) authentication.getPrincipal();
+        System.out.println("******************* email : " + user.getUsername());
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) email = userDetails.getUsername();
         else throw new CatchStudyException(ErrorCode.USER_NOT_FOUND);
 
