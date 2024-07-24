@@ -20,8 +20,7 @@ public class MessageController {
 
     @MessageMapping("/{chatRoomId}/chat")
     @SendTo("/sub/{chatRoomId}/chat")
-    public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto, Principal principal) {
-        String email = principal.getName();
-        MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto, email);
+    public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto) {
+        MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto);
     }
 }
