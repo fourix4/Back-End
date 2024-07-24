@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -49,9 +50,7 @@ public class BookingService {
 
 
 
-
-
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long saveBooking(SeatBookingDto dto, Long userId) {
         Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
@@ -60,11 +59,10 @@ public class BookingService {
             if (!seat.getIsAvailable()) {
                 throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
             }
-            if (bookingRepository.existsBySeatSeatId(seat.getSeatId())) {
-                throw new CatchStudyException(ErrorCode.SEAT_NOT_SELECT);
-            }
 
             booking = bookingRepository.save(Booking.of(dto.getTime(), user, seat.getStudyCafe(), seat));
+            seat.updateSeatStatus(false);
+
 
         } else if (dto.getType() == SeatType.room) {
             Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
@@ -88,7 +86,6 @@ public class BookingService {
 
         }
         return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready)).getPaymentId();
-
     }
 
     @Transactional(readOnly = true)
@@ -266,6 +263,15 @@ public class BookingService {
 
     @Transactional
     public void deleteBooking(Long paymentId) {
+        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(
+                ()->new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
+        );
+        if(payment.getBooking().getSeat()==null){ //스터디룸
+            bookedRoomInfoRepository.delete(payment.getBooking().getBookedRoomInfo());
+        }else{
+            payment.getBooking().getSeat().updateSeatStatus(true);
+        }
+
         paymentRepository.deleteByPaymentId(paymentId);
     }
 }
