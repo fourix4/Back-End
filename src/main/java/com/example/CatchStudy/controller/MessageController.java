@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequiredArgsConstructor
 public class MessageController {
@@ -18,7 +20,8 @@ public class MessageController {
 
     @MessageMapping("/{chatRoomId}/chat")
     @SendTo("/sub/{chatRoomId}/chat")
-    public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto) {
-        MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto);
+    public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto, Principal principal) {
+        String email = principal.getName();
+        MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto, email);
     }
 }
