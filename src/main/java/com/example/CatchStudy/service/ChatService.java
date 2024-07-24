@@ -87,10 +87,9 @@ public class ChatService {
     }
 
     @Transactional
-    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto) {
+    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto, String email) {
 
-        Users user = usersRepository.findByUserId(usersService.getCurrentUserId()).
-                orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+        Users user = usersRepository.findByEmail(email);
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.CHATROOM_NOT_FOUND));
 
