@@ -2,6 +2,8 @@ package com.example.CatchStudy.domain.dto.response;
 
 import com.example.CatchStudy.domain.entity.StudyCafe;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ManagerResponseDto {
 
     private String cafeName;
