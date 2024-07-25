@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -67,12 +68,15 @@ public class BookingService {
         } else if (dto.getType() == SeatType.room) {
             Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
 
-            if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), dto.getStartTime(), dto.getStartTime().plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime localDateTime = LocalDateTime.parse(dto.getStartTime(), formatter);
+
+            if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), localDateTime, localDateTime.plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
                 throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
             }
 
             //예약 시작 시간 / 퇴실 시간 저장
-            LocalDateTime bookingStartTime = dto.getStartTime();
+            LocalDateTime bookingStartTime = localDateTime;
             Integer time = dto.getTime();
             LocalTime localTime = LocalTime.of(bookingStartTime.getHour(), bookingStartTime.getMinute());
             LocalTime endLocalTime = localTime.plusMinutes(time);

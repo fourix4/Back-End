@@ -18,13 +18,13 @@ public class SeatBookingDto {
     PaymentType paymentType;
     Long roomId;
     SeatType type;
-    LocalDateTime startTime;
+    String startTime;
 
     public static SeatBookingDto of(Long cafeId, Long seatId, Integer time, Integer amount, PaymentType paymentType, SeatType type) {
         return new SeatBookingDto(cafeId, seatId, time, amount, paymentType, null, type, null);
     }
 
-    public static SeatBookingDto of(Long cafeId, Integer time, Integer amount, PaymentType paymentType, Long roomId, SeatType type, LocalDateTime startTime) {
+    public static SeatBookingDto of(Long cafeId, Integer time, Integer amount, PaymentType paymentType, Long roomId, SeatType type, String startTime) {
         return new SeatBookingDto(cafeId, null, time, amount, paymentType, roomId, type, startTime);
     }
 }
