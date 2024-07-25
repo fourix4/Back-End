@@ -52,15 +52,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication); // 검증 후 security context 인증 정보 저장
         } catch (ExpiredJwtException e) {   // 만료 에러 발생
             // refreshToken 존재시
-            if(jwtUtil.validateRefreshToken(accessToken)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-
-                Response<Void> errorResponse = Response.error("401", ErrorCode.EXPIRED_ACCESS_TOKEN.getMessage());
-                ObjectMapper objectMapper = new ObjectMapper();
-                String jsonResponse = objectMapper.writeValueAsString(errorResponse);
-                response.getWriter().write(jsonResponse);
+            if (jwtUtil.validateRefreshToken(accessToken)) {
+                sendErrorResponse(response, "401", ErrorCode.EXPIRED_ACCESS_TOKEN.getMessage());
+            } else {
+                sendErrorResponse(response, "403", ErrorCode.EXPIRED_LOGIN_ERROR.getMessage());
             }
 
             return;
@@ -78,4 +73,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return null;
     }
+
+     private static void sendErrorResponse(HttpServletResponse response, String statusCode, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        Response<Void> errorResponse = Response.error(statusCode, message);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+        response.getWriter().write(jsonResponse);
+    }
+
 }
