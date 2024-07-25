@@ -90,12 +90,9 @@ public class ChatService {
     }
 
     @Transactional
-    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-
-        Users user = usersRepository.findByEmail(email);
+    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto, long userId) {
+                Users user = usersRepository.findById(userId).
+                        orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -119,9 +116,9 @@ public class ChatService {
     public void handleSessionConnect(SessionConnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        Long chatRoomId = Long.parseLong((String) ((List) accessor.getNativeHeader("chatRoomId")).get(0));
+        long chatRoomId = Long.parseLong((String) ((List) accessor.getNativeHeader("chatRoomId")).get(0));
         String sessionId = accessor.getSessionId();
-        long userId = usersService.getCurrentUserId();
+        long userId = Long.parseLong((String) ((List) accessor.getNativeHeader("userId")).get(0));
 
         Map<String, Long> userMap = chatRoomMap.getOrDefault(chatRoomId, new HashMap<>());
         userMap.put(sessionId, userId);
