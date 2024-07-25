@@ -90,9 +90,9 @@ public class ChatService {
     }
 
     @Transactional
-    public String createMessage(long chatRoomId, MessageRequestDto messageRequestDto, long userId) {
-        Users user = usersRepository.findById(userId).
-                orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+    public MessageResponseDto createMessage(long chatRoomId, MessageRequestDto messageRequestDto, long userId) {
+                Users user = usersRepository.findById(userId).
+                        orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -108,9 +108,8 @@ public class ChatService {
                 chatNotificationRepository.save(new ChatNotification(chatRoom, client));
             }
         }
-        messageRepository.save(new Message(messageRequestDto, user, chatRoom));
 
-        return messageRequestDto.getChat();
+        return new MessageResponseDto(messageRepository.save(new Message(messageRequestDto, user, chatRoom)));
     }
 
     @EventListener
