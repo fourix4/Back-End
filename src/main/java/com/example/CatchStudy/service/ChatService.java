@@ -65,7 +65,7 @@ public class ChatService {
         List<ChatRoom> chatRoomList = chatRoomRepository.findByUserId(userId);
 
         for(ChatRoom chatRoom : chatRoomList) {
-            Message message = messageRepository.findTopByChatRoomIdOrderByCreateDateDesc(chatRoom.getChatRoomId()).
+            Message message = messageRepository.findTop1ByChatRoomIdOrderByCreateDateDesc(chatRoom.getChatRoomId()).
                     orElse(new Message());
             ChatNotification chatNotification = chatNotificationRepository.findFirstByChatRoomAndUserOrderByChatNotificationIdDesc(chatRoom, user)
                     .orElse(null);
