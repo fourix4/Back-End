@@ -30,7 +30,7 @@ public class QuartzSchedulerService {
 
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity("cancelBeforeEnteringSeatJob_" + bookingId, "cancelBeforeEnteringSeatGroup")
-                .startAt(Date.from(payment.getPaymentTime().plusMinutes(1).atZone(ZoneId.systemDefault()).toInstant()))
+                .startAt(Date.from(payment.getPaymentTime().plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant()))
                 .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
