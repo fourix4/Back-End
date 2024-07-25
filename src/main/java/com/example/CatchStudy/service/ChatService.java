@@ -11,14 +11,7 @@ import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.GenericMessage;
-import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.messaging.support.NativeMessageHeaderAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
@@ -29,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Service
 @Transactional
@@ -62,7 +54,15 @@ public class ChatService {
         long userId = usersService.getCurrentUserId();
         Users user = usersRepository.findByUserId(userId).
                 orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
-        List<ChatRoom> chatRoomList = chatRoomRepository.findByUserId(userId);
+        List<ChatRoom> chatRoomList = new ArrayList<>();
+
+        if(user.getAuthor() == Author.roleUser) {
+            chatRoomList = chatRoomRepository.findByUserId(userId);
+        } else if(user.getAuthor() == Author.roleManager) {
+            StudyCafe studyCafe = studyCafeRepository.findByUser_UserId(userId).
+                    orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
+            chatRoomList = chatRoomRepository.findByCafeId(studyCafe.getCafeId());
+        }
 
         for(ChatRoom chatRoom : chatRoomList) {
             Message message = messageRepository.findTop1ByChatRoomIdOrderByCreateDateDesc(chatRoom.getChatRoomId()).
