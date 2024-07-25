@@ -21,8 +21,8 @@ public class MessageController {
 
     @MessageMapping("/{chatRoomId}/chat")
     @SendTo("/sub/{chatRoomId}/chat")
-    public void createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto,
+    public String createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto,
                               @Header("userId") Long userId) {
-        MessageResponseDto messageResponseDto = chatService.createMessage(chatRoomId, messageRequestDto, userId);
+        return chatService.createMessage(chatRoomId, messageRequestDto, userId);
     }
 }
