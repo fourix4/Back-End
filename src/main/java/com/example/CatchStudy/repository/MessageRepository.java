@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    @Query("SELECT m FROM Message m WHERE m.chatRoom.chatRoomId = :chatRoomId ORDER BY m.createDate DESC")
+    @Query("SELECT m FROM Message m WHERE m.chatRoom.chatRoomId = :chatRoomId ORDER BY m.createDate DESC limit 1")
     Optional<Message> findTop1ByChatRoomIdOrderByCreateDateDesc(@Param("chatRoomId") Long chatRoomId);
 
     @Query("SELECT m FROM Message m WHERE m.chatRoom.chatRoomId = :chatRoomId ORDER BY m.createDate ASC")
