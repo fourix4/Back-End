@@ -20,12 +20,12 @@ public class BookingRequestDto {
 
     Long room_id;
     SeatType type;
-    LocalDateTime start_time;
+    String start_time;
 
     public static BookingRequestDto of(Long cafe_id, Long seat_id, Integer time, Integer amount, PaymentType payment_type, SeatType type) {
         return new BookingRequestDto(cafe_id, seat_id, time, amount, payment_type, null, type, null);
     }
-    public static BookingRequestDto of(Long cafe_id, Integer time, Integer amount, PaymentType payment_type, Long room_Id, SeatType type, LocalDateTime start_time) {
+    public static BookingRequestDto of(Long cafe_id, Integer time, Integer amount, PaymentType payment_type, Long room_Id, SeatType type, String start_time) {
         return new BookingRequestDto(cafe_id, null,time,amount,payment_type,room_Id,type,start_time);
     }
 
