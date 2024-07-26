@@ -4,11 +4,13 @@ import com.example.CatchStudy.global.enums.PaymentType;
 import com.example.CatchStudy.global.enums.SeatType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class SeatBookingDto {
 
     Long cafeId;

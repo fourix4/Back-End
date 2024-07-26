@@ -35,9 +35,9 @@ public class BookingController {
         User user = (User) authentication.getPrincipal();
         Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
         SeatBookingDto dto = null;
-        if (bookingRequestDto.getType() == SeatType.seat) {
+        if (bookingRequestDto.getType().equals(SeatType.seat)) {
             dto = bookingRequestDto.toSeatDto();
-        } else if (bookingRequestDto.getType() == SeatType.room) {
+        } else if (bookingRequestDto.getType().equals(SeatType.room)) {
             dto = bookingRequestDto.toRoomDto();
         }
         BookingResponseDto bookingResponseDto = paymentService.kakaoPayReady(dto, userId);
