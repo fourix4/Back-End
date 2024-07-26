@@ -17,22 +17,19 @@ public class ManagerController {
     private final ManagerService managerService;
 
     @PostMapping("/manager")
-    public ResponseEntity<?> saveStudyCafe(ManagerRequestDto managerRequestDto) {
+    public Response saveStudyCafe(ManagerRequestDto managerRequestDto) {
         managerService.saveStudyCafe(managerRequestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.success());
+        return Response.success();
     }
 
     @PatchMapping("/manager")
-    public ResponseEntity<?> updateStudyCafe(ManagerRequestDto managerRequestDto) {
+    public Response updateStudyCafe(ManagerRequestDto managerRequestDto) {
         managerService.updateStudyCafe(managerRequestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.success());
+        return Response.success();
     }
 
     @GetMapping("/manager")
-    public ResponseEntity<?> getStudyCafe() {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.success(Result.toResponseDto(managerService.getStudyCafe())));
+    public Response getStudyCafe() {
+        return Response.success(Result.toResponseDto(managerService.getStudyCafe()));
     }
 }

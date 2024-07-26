@@ -12,13 +12,15 @@ public class RoomDto {
     private String room_name;
     private Integer capacity;
     private Long cancel_available_time;
+    private Integer price;
 
     public static RoomDto from(Room entity) {
         return new RoomDto(
                 entity.getRoomId(),
                 entity.getRoomName(),
                 entity.getCapacity(),
-                entity.getCancelAvailableTime()
+                entity.getCancelAvailableTime(),
+                entity.getPrice()
         );
     }
 }

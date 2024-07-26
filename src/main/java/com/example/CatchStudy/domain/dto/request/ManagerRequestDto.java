@@ -16,7 +16,7 @@ public class ManagerRequestDto {
     private String closedHours;
     private String closedDay;
     private String cafePhone;
-    private int seats;
+    private Integer seats;
     private RoomInfoRequestDto roomInfo;
     private List<UsageFeeRequestDto> usageFee;
     private MultipartFile titleImage;

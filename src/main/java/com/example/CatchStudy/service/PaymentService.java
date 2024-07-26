@@ -14,20 +14,23 @@ import com.example.CatchStudy.global.kakaopay.KakaoPayProperties;
 import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class PaymentService {
     private final UsersRepository usersRepository;
@@ -37,13 +40,15 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
+    private final QuartzSchedulerService quartzSchedulerService;
 
+    @Transactional
     public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
-
         Long paymentId = bookingService.saveBooking(dto, userId);
         Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
+
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", KakaoPayProperties.cid);                                    // 가맹점 코드(테스트용)
         parameters.put("partner_order_id", String.valueOf(paymentId));                    // 주문번호(paymentId)
@@ -52,9 +57,9 @@ public class PaymentService {
         parameters.put("quantity", "1");                                                  // 상품 수량
         parameters.put("total_amount", String.valueOf(dto.getAmount()));                  // 상품 총액
         parameters.put("tax_free_amount", "0");
-        parameters.put("approval_url", "http://localhost:8080/api/payment/success" + "/" + users.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
-        parameters.put("cancel_url", "http://localhost:8080/api/payment/cancel/" + paymentId); // 취소 시 redirect url
-        parameters.put("fail_url", "http://localhost:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
+        parameters.put("approval_url", "http://3.39.182.9:8080/api/payment/success" + "/" + users.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
+        parameters.put("cancel_url", "http://3.39.182.9:8080/api/payment/cancel/" + paymentId); // 취소 시 redirect url
+        parameters.put("fail_url", "http://3.39.182.9:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
 
@@ -68,15 +73,14 @@ public class PaymentService {
         payment.updateTid(kakaoReady.getTid()); //tid payment 테이블에 저장
 
         return kakaoReady.toDto();
-
     }
 
+    @Transactional
     public KakaoApproveResponseDto kakaoPayApprove(String pgToken, Long userId, Long paymentId) { //카카오 페이에 승인 요청
-
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         Booking booking = payment.getBooking();
-        Map<String, String> parameters = new HashMap<>();
 
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", KakaoPayProperties.cid);
         parameters.put("tid", payment.getTid());
         parameters.put("partner_order_id", String.valueOf(paymentId));
@@ -97,16 +101,37 @@ public class PaymentService {
         String code = makeCode();
         booking.completeBooking(BookingStatus.beforeEnteringRoom, makeCode());
         payment.approvePayment(kakaoApprove.getApproved_at(), PaymentStatus.approve, kakaoApprove.getAmount().getTotal());
-        if (booking.getBookedRoomInfo() == null) {
-            booking.getSeat().updateSeatStatus(false);
+
+        if (booking.getBookedRoomInfo() == null) { //좌석 일 때
+
+            try {
+                quartzSchedulerService.scheduleBookingSeatStatusCheck(booking.getBookingId(), payment); //30 분 후 좌석 상태 확인 작업 스케줄;
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
+
+        } else {
+
+            try {
+                quartzSchedulerService.scheduleRoomEnterUpdate(booking.getBookingId(), booking.getStartTime()); //스터디룸 입실 시간이 되었을 때 작업 스케줄
+
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
+
+            try {
+                quartzSchedulerService.scheduleCheckOutRoomBooking(booking.getBookingId(), booking.getEndTime()); //스터디룸 퇴실 시간이 되었을 때 작업 스케줄
+
+            } catch (SchedulerException e) {
+                throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+            }
         }
 
         return kakaoApprove;
-
     }
 
+    @Transactional
     public void kakaoCancel(Long bookingId) {
-
         Payment payment = paymentRepository.findByBookingBookingId(bookingId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
         BookedRoomInfo bookedRoomInfo = payment.getBooking().getBookedRoomInfo();
         Room room = bookedRoomInfo.getRoom();
@@ -137,9 +162,14 @@ public class PaymentService {
 
         // 결제 환불 후 예약 스터디룸 정보 삭제
         payment.getBooking().cancelBooking(BookingStatus.canceled);
-        payment.cancelPayment(PaymentStatus.cancel);
+        payment.cancelPayment(PaymentStatus.cancel, kakaoCancel.getCanceled_at());
         payment.getBooking().deleteRoomInfo();
         bookedRoomInfoRepository.delete(bookedRoomInfo);
+    }
+
+    private void printInfo() {
+        boolean txActive = TransactionSynchronizationManager.isActualTransactionActive();
+        log.info("tx active={}", txActive);
     }
 
     private HttpHeaders getHeaders() {

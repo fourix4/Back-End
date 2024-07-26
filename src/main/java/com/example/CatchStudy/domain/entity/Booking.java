@@ -1,6 +1,7 @@
 package com.example.CatchStudy.domain.entity;
 
 import com.example.CatchStudy.global.enums.BookingStatus;
+import com.example.CatchStudy.global.enums.SeatType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -78,6 +79,39 @@ public class Booking {
         this.endTime = null;
         this.code = null;
     }
+    public SeatType getSeatType(){
+        if(this.seat == null){
+            return SeatType.room;
+        }
+        return SeatType.seat;
+    }
+
+    public void checkInSeatBooking(LocalDateTime startTime,Integer time){
+        this.startTime = startTime;
+        this.endTime = startTime.plusMinutes(time);
+        this.status = BookingStatus.enteringRoom;
+    }
+
+    public void checkOutSeatBooking(LocalDateTime endTime){
+        this.endTime = endTime;
+        this.code = null;
+        this.status = BookingStatus.completed;
+    }
+
+    public void cancelBeforeEnteringSeat(){
+        this.status = BookingStatus.canceled;
+        this.code = null;
+    }
+
+    public void checkInRoomBooking(){
+        this.status = BookingStatus.enteringRoom;
+    }
+
+    public void checkOutRoomBooking(){
+        this.code = null;
+        this.status = BookingStatus.completed;
+    }
+
     public void deleteRoomInfo(){
         this.bookedRoomInfo = null;
     }

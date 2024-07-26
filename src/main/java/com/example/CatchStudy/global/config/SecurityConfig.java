@@ -1,6 +1,7 @@
 package com.example.CatchStudy.global.config;
 
 import com.example.CatchStudy.global.jwt.JwtAuthenticationFilter;
+import com.example.CatchStudy.global.oauth.AuthenticationFailHandler;
 import com.example.CatchStudy.global.oauth.AuthenticationSuccessHandler;
 import com.example.CatchStudy.global.oauth.CustumOauth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class SecurityConfig{
     private final CustumOauth2UserService custumOauth2UserService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationFailHandler authenticationFailHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -35,11 +37,12 @@ public class SecurityConfig{
             .httpBasic(HttpBasicConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
+                .requestMatchers("/api/manager/**").hasAuthority("roleManager")
                 .anyRequest().permitAll()
             ).oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(custumOauth2UserService))
                 .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailHandler)
             ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

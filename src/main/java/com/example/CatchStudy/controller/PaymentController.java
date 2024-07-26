@@ -38,9 +38,8 @@ public class PaymentController {
     }
 
     @GetMapping("/payment/success/{userId}/{paymentId}")
-    public ResponseEntity<?> afterPayRequest(@RequestParam("pg_token") String pgToken, @PathVariable("userId") Long userId, @PathVariable("paymentId") Long paymentId) { //결제 성공
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(paymentService.kakaoPayApprove(pgToken, userId, paymentId));
-        //return "redirect:/order/completed"; 성공페이지로 리다이렉트
+    public String afterPayRequest(@RequestParam("pg_token") String pgToken, @PathVariable("userId") Long userId, @PathVariable("paymentId") Long paymentId) { //결제 성공
+        paymentService.kakaoPayApprove(pgToken,userId,paymentId);
+        return "redirect:http://localhost:3000/payment-success";
     }
 }

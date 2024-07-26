@@ -1,5 +1,8 @@
 package com.example.CatchStudy.global.jwt;
 
+import com.example.CatchStudy.domain.dto.response.Response;
+import com.example.CatchStudy.global.exception.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -29,6 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = resolveToken(request);
+        String uri = request.getRequestURI();
+
+        if (uri.equals("/api/users/reissuance")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if(accessToken == null) {
             filterChain.doFilter(request, response);
@@ -42,7 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication); // 검증 후 security context 인증 정보 저장
         } catch (ExpiredJwtException e) {   // 만료 에러 발생
             // refreshToken 존재시
-            if(jwtUtil.validateRefreshToken(accessToken)) response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            if (jwtUtil.validateRefreshToken(accessToken)) {
+                sendErrorResponse(response, "401", ErrorCode.EXPIRED_ACCESS_TOKEN.getMessage());
+            } else {
+                sendErrorResponse(response, "403", ErrorCode.EXPIRED_LOGIN_ERROR.getMessage());
+            }
 
             return;
         }
@@ -53,11 +67,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
-
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
 
         return null;
     }
+
+     private static void sendErrorResponse(HttpServletResponse response, String statusCode, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        Response<Void> errorResponse = Response.error(statusCode, message);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+        response.getWriter().write(jsonResponse);
+    }
+
 }
