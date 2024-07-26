@@ -24,13 +24,6 @@ public class BookingRequestDto {
     String type;
     String start_time;
 
-    public static BookingRequestDto of(Long cafe_id, Long seat_id, Integer time, Integer amount, String payment_type, String type) {
-        return new BookingRequestDto(cafe_id, seat_id, time, amount, payment_type, null, type, null);
-    }
-    public static BookingRequestDto of(Long cafe_id, Integer time, Integer amount, String payment_type, Long room_Id, String type, String start_time) {
-        return new BookingRequestDto(cafe_id, null,time,amount,payment_type,room_Id,type,start_time);
-    }
-
     public SeatBookingDto toSeatDto() {
         return SeatBookingDto.of(
                 cafe_id,
