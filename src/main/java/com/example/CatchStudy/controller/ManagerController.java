@@ -17,13 +17,14 @@ public class ManagerController {
     private final ManagerService managerService;
 
     @PostMapping("/manager")
-    public Response saveStudyCafe(ManagerRequestDto managerRequestDto) {
+    public Response saveStudyCafe(@RequestBody ManagerRequestDto managerRequestDto) {
         managerService.saveStudyCafe(managerRequestDto);
+
         return Response.success();
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(ManagerRequestDto managerRequestDto) {
+    public Response updateStudyCafe(@RequestBody ManagerRequestDto managerRequestDto) {
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
     }
