@@ -130,7 +130,7 @@ public class RoomService {
 
     public RoomInfoResponseDto getRoomInfoResponseDto(long cafeId) {
         List<RoomResponseDto> roomResponseDtoList = roomRepository.findAllByStudyCafeCafeId(cafeId).stream().map(RoomResponseDto::new).toList();
-        long cancelAvailableTime = roomRepository.findCancelAvailableTimeByCafeId(cafeId);
+        Long cancelAvailableTime = roomRepository.findCancelAvailableTimeByCafeId(cafeId).orElse(0L);
 
         return new RoomInfoResponseDto(cancelAvailableTime, roomResponseDtoList);
     }

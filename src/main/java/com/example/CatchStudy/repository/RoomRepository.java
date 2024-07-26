@@ -31,5 +31,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Integer countAvailableRoomsByStudyCafeId(@Param("cafeId") Long cafeId, @Param("currentTime") LocalTime currentTime);
 
     @Query("SELECT r.cancelAvailableTime FROM Room r WHERE r.studyCafe.cafeId = :cafeId")
-    Long findCancelAvailableTimeByCafeId(@Param("cafeId") Long cafeId);
+    Optional<Long> findCancelAvailableTimeByCafeId(@Param("cafeId") Long cafeId);
 }
