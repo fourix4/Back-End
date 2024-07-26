@@ -19,7 +19,10 @@ public class ManagerController {
     @PostMapping("/manager")
     public Response saveStudyCafe(@RequestBody ManagerRequestDto managerRequestDto) {
         managerService.saveStudyCafe(managerRequestDto);
-
+        System.out.println(managerRequestDto.getClosedDay());
+        System.out.println(managerRequestDto.getCafeName());
+        System.out.println(managerRequestDto.getSeats());
+        System.out.println(managerRequestDto.getCafePhone());
         return Response.success();
     }
 
