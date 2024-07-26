@@ -26,8 +26,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -184,9 +186,9 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public AvailableBookingResponseDto getAvailableBooking(Long userId) { //현재 예약 내용 조회
-        List<Booking> seats = bookingRepository.getAvailableSeats(userId);
-        List<Booking> rooms = bookingRepository.getAvailableRooms(userId);
-        List<AvailableBookingSeatDto> bookingSeatDtos = seats.stream()
+        List<AvailableBookingSeatDto> bookingSeatDtos = Optional.ofNullable(bookingRepository.getAvailableSeats(userId))
+                .orElseGet(Collections::emptyList)
+                .stream()
                 .map(booking -> {
                     Payment payment = paymentRepository.findByBookingBookingId(booking.getBookingId())
                             .orElseThrow(()-> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
@@ -210,7 +212,9 @@ public class BookingService {
                 .sorted(Comparator.comparing(AvailableBookingSeatDto::getPayment_time))
                 .collect(Collectors.toList());
 
-        List<AvailableBookingRoomDto> bookingRoomDtos = rooms.stream()
+        List<AvailableBookingRoomDto> bookingRoomDtos = Optional.ofNullable(bookingRepository.getAvailableRooms(userId))
+                .orElseGet(Collections::emptyList)
+                .stream()
                 .map(booking -> {
                     Payment payment = paymentRepository.findByBookingBookingId(booking.getBookingId())
                             .orElseThrow(()-> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
