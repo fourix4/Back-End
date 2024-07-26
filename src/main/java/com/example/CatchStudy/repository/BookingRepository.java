@@ -16,14 +16,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query(
             value = "select b from Booking b where b.user.userId = :userId and " +
-                    "b.seat is not null and b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom'"
+                    "b.seat is not null and (b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom')"
 
     )
     List<Booking> getAvailableSeats(@Param(value = "userId") Long userId);
 
     @Query(
             value = "select b from Booking b where b.user.userId = :userId and " +
-                    "b.seat is null and b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom'"
+                    "b.seat is null and (b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom')"
 
     )
     List<Booking> getAvailableRooms(@Param(value = "userId") Long userId);
