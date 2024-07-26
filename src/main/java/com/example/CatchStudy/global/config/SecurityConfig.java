@@ -37,7 +37,7 @@ public class SecurityConfig{
             .httpBasic(HttpBasicConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
+                .requestMatchers("/api/manager/**").hasAuthority("roleManager")
                 .anyRequest().permitAll()
             ).oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(custumOauth2UserService))
