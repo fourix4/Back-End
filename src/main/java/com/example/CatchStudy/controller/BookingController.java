@@ -72,6 +72,7 @@ public class BookingController {
 
     @PatchMapping("/booking/checkout")
     public Response<Void> checkOutSeat(@RequestBody SeatCheckOutRequestDto dto) { // 퇴실
+        System.out.println("bookingId: "+ dto.getBooking_id());
         bookingService.checkOutSeat(dto.getBooking_id());
         return Response.success();
     }
