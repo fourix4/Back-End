@@ -9,10 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 public class SeatCheckOutRequestDto {
 
-    @JsonProperty("booking_id")
     private Long booking_id;
 
 }
