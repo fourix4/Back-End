@@ -14,22 +14,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDto {
-    @JsonProperty("cafe_id")
     Long cafe_id;
-
-    @JsonProperty("seat_id")
     Long seat_id;
-    @JsonProperty("time")
     Integer time;
-    @JsonProperty("amount")
+
     Integer amount;
-    @JsonProperty("payment_type")
     String payment_type;
-    @JsonProperty("room_id")
+
     Long room_id;
-    @JsonProperty("type")
+
     String type;
-    @JsonProperty("start_time")
+
     String start_time;
 
     public SeatBookingDto toSeatDto() {
