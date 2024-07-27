@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BookingRequestDto {
     @JsonProperty("cafe_id")
     Long cafe_id;
