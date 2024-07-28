@@ -94,7 +94,7 @@ public class ManagerService {
             seatService.saveSeat(Integer.toString(i), studyCafe);
         }
 
-        cafeImageService.deleteCafeImages(thumbnail, multipleImages, studyCafe);
+        //cafeImageService.deleteCafeImages(thumbnail, multipleImages, studyCafe);
         cafeImageService.saveCafeImages(thumbnail, multipleImages, studyCafe);
     }
 
