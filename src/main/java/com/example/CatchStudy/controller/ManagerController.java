@@ -42,6 +42,12 @@ public class ManagerController {
 
     @PatchMapping("/manager")
     public Response updateStudyCafe(@ModelAttribute ManagerRequestDto managerRequestDto) {
+
+        System.out.println(managerRequestDto.getCafePhone());
+        System.out.println(managerRequestDto.getCafeName());
+        System.out.println(managerRequestDto.getAddress().getCity());
+        System.out.println(managerRequestDto.getRoomInfo().getCancelAvailableTime());
+        ;
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
     }
