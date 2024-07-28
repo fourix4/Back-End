@@ -10,6 +10,7 @@ import com.example.CatchStudy.service.ManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,11 +38,13 @@ public class ManagerController {
                                     @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
                                     @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
 
-        if (titleImage != null && !titleImage.isEmpty()) {
-            System.out.println("Title Image Name: " + titleImage.getOriginalFilename());
-            System.out.println("Title Image Size: " + titleImage.getSize());
-        } else {
-            System.out.println("No Title Image Provided");
+        for(MultipartFile image : multipleImages) {
+            if (image != null && !image.isEmpty()) {
+                System.out.println("Title Image Name: " + image.getOriginalFilename());
+                System.out.println("Title Image Size: " + image.getSize());
+            } else {
+                System.out.println("No Title Image Provided");
+            }
         }
 
         managerService.updateStudyCafe(managerRequestDto, titleImage, multipleImages);
