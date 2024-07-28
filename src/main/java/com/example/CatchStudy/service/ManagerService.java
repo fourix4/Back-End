@@ -36,7 +36,7 @@ public class ManagerService {
     private final CafeImageRepository cafeImageRepository;
 
     @Transactional
-    public void saveStudyCafe(ManagerRequestDto managerRequestDto) {
+    public void saveStudyCafe(ManagerRequestDto managerRequestDto, MultipartFile thumbnail, List<MultipartFile> multipleImages) {
 
         long userId = usersService.getCurrentUserId();
         Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
@@ -65,14 +65,11 @@ public class ManagerService {
         }
 
         // 이미지 저장
-        MultipartFile thumbnail = managerRequestDto.getTitleImage();  // 썸네일
-        MultipartFile seatChart = managerRequestDto.getSeatChartImage();  // 좌석배치도
-        List<MultipartFile> multipleImages = managerRequestDto.getMultipleImages();   // 카페 이미지
-        cafeImageService.saveCafeImages(thumbnail, seatChart, multipleImages, savedStudyCafe);
+        cafeImageService.saveCafeImages(thumbnail, multipleImages, savedStudyCafe);
     }
 
     @Transactional
-    public void updateStudyCafe(ManagerRequestDto managerRequestDto) {
+    public void updateStudyCafe(ManagerRequestDto managerRequestDto, MultipartFile thumbnail, List<MultipartFile> multipleImages) {
         long userId = usersService.getCurrentUserId();
         LocalTime openingHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
         LocalTime closedHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
@@ -97,11 +94,8 @@ public class ManagerService {
             seatService.saveSeat(Integer.toString(i), studyCafe);
         }
 
-        MultipartFile thumbnail = managerRequestDto.getTitleImage();
-        MultipartFile seatChart = managerRequestDto.getSeatChartImage();
-        List<MultipartFile> multipleImages = managerRequestDto.getMultipleImages();
-        cafeImageService.deleteCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
-        cafeImageService.saveCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
+        cafeImageService.deleteCafeImages(thumbnail, multipleImages, studyCafe);
+        cafeImageService.saveCafeImages(thumbnail, multipleImages, studyCafe);
     }
 
     public ManagerResponseDto getStudyCafe() {

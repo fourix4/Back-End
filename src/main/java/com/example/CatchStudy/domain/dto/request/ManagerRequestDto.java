@@ -24,9 +24,6 @@ public class ManagerRequestDto {
     private Integer seats;
     private RoomInfoRequestDto roomInfo;
     private List<UsageFeeRequestDto> usageFee;
-    private MultipartFile titleImage;
-    private List<MultipartFile> multipleImages;
-    private MultipartFile seatChartImage;
 
     public ManagerRequestDto(ManagerRequestDto requestDto, MultipartFile titleImage, List<MultipartFile> multipleImages,
                              MultipartFile seatChartImage) {
@@ -38,8 +35,5 @@ public class ManagerRequestDto {
         this.seats = requestDto.getSeats();
         this.roomInfo = requestDto.getRoomInfo();
         this.usageFee = requestDto.getUsageFee();
-        this.titleImage = titleImage;
-        this.multipleImages = multipleImages;
-        this.seatChartImage = seatChartImage;
     }
 }
