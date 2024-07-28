@@ -26,14 +26,18 @@ public class CafeImageService {
     private final S3Service s3Service;
 
     public void saveCafeImages(MultipartFile thumbnail, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
-        String thumbnailUrl = s3Service.upload(thumbnail);
-        CafeImage cafeThumbnailImage = new CafeImage(ImageType.thumbnail, thumbnailUrl, studyCafe);
-        cafeImageRepository.save(cafeThumbnailImage);
+        if(thumbnail != null) {
+            String thumbnailUrl = s3Service.upload(thumbnail);
+            CafeImage cafeThumbnailImage = new CafeImage(ImageType.thumbnail, thumbnailUrl, studyCafe);
+            cafeImageRepository.save(cafeThumbnailImage);
+        }
 
-        for(MultipartFile imageFile : multipleImages) {
-            String imageFileUrl = s3Service.upload(imageFile);
-            CafeImage cafeImage = new CafeImage(ImageType.cafeImage, imageFileUrl, studyCafe);
-            cafeImageRepository.save(cafeImage);
+        if(multipleImages != null) {
+            for(MultipartFile imageFile : multipleImages) {
+                String imageFileUrl = s3Service.upload(imageFile);
+                CafeImage cafeImage = new CafeImage(ImageType.cafeImage, imageFileUrl, studyCafe);
+                cafeImageRepository.save(cafeImage);
+            }
         }
     }
 
