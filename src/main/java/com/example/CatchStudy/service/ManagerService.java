@@ -94,7 +94,7 @@ public class ManagerService {
             seatService.saveSeat(Integer.toString(i), studyCafe);
         }
 
-        //cafeImageService.deleteCafeImages(thumbnail, multipleImages, studyCafe);
+        cafeImageService.deleteCafeImages(studyCafe);
         cafeImageService.saveCafeImages(thumbnail, multipleImages, studyCafe);
     }
 
@@ -107,7 +107,7 @@ public class ManagerService {
         String thumbnailUrl = cafeImageRepository.findThumbnailUrlByStudyCafeId(studyCafe.getCafeId());
         String seatingChartUrl = cafeImageRepository.findSeatingChartUrlByStudyCafeId(studyCafe.getCafeId());
         List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(studyCafe.getCafeId());
-
+        System.out.println("size : " + cafeImageUrls.size());
         return new ManagerResponseDto(studyCafe, seats, roomInfoResponseDto, usageFeeResponseDtoList, thumbnailUrl, cafeImageUrls, seatingChartUrl);
     }
 }
