@@ -84,6 +84,7 @@ public class S3Service {
                             .withCannedAcl(CannedAccessControlList.PublicRead);
             amazonS3.putObject(putObjectRequest); // S3에 이미지 업로드
         }catch (Exception e){
+            System.out.println(e.getMessage());
             throw new AmazonS3Exception(ErrorCode.IO_EXCEPTION_ON_IMAGE_UPLOAD.getMessage());
         }finally {
             byteArrayInputStream.close();
