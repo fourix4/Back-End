@@ -41,21 +41,7 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestParam(name = "cafe_name") String cafeName,
-                                    @ModelAttribute(name = "address") AddressRequestDto address,
-                                    @RequestParam(name = "opening_hours") String openingHours,
-                                    @RequestParam(name = "closed_hours") String closedHours,
-        @RequestParam(name = "closed_day") String closedDay,
-        @RequestParam(name = "cafe_phone") String cafePhone,
-        @RequestParam(name = "seats") Integer seats,
-        @ModelAttribute(name = "room_info") RoomInfoRequestDto roomInfo,
-        @ModelAttribute(name = "usage_fee") List<UsageFeeRequestDto> usageFee,
-        @RequestParam(name = "title_image", required = false) MultipartFile titleImage,
-        @RequestParam(name = "multiple_images", required = false) List<MultipartFile> multipleImages,
-        @RequestParam(name = "seat_chart_image", required = false) MultipartFile seatChartImage) {
-            ManagerRequestDto managerRequestDto = new ManagerRequestDto(
-                    cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
-
+    public Response updateStudyCafe(@ModelAttribute ManagerRequestDto managerRequestDto) {
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
     }
