@@ -96,12 +96,14 @@ public class ManagerService {
         for(int i = 1; i <= managerRequestDto.getSeats(); i++) {
             seatService.saveSeat(Integer.toString(i), studyCafe);
         }
-
+        /*
         MultipartFile thumbnail = managerRequestDto.getTitleImage();
         MultipartFile seatChart = managerRequestDto.getSeatChartImage();
         List<MultipartFile> multipleImages = managerRequestDto.getMultipleImages();
         cafeImageService.deleteCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
         cafeImageService.saveCafeImages(thumbnail, seatChart, multipleImages, studyCafe);
+        */
+
     }
 
     public ManagerResponseDto getStudyCafe() {
