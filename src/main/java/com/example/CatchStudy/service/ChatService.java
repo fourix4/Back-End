@@ -71,7 +71,7 @@ public class ChatService {
                     .orElse(null);
             boolean status = chatNotification == null || chatNotification.isStatus();   // null 인 경우 알림 x 이므로 true
 
-            chatRoomResponseDtoList.add(new ChatRoomResponseDto(chatRoom, message, status));
+            chatRoomResponseDtoList.add(new ChatRoomResponseDto(chatRoom, message, status, user.getAuthor()));
         }
 
         return chatRoomResponseDtoList;
