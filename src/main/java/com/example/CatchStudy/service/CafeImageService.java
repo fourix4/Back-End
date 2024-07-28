@@ -41,7 +41,7 @@ public class CafeImageService {
         }
     }
 
-    public void deleteCafeImages(MultipartFile thumbnail, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
+    public void deleteCafeImages(StudyCafe studyCafe) {
         List<CafeImage> images = cafeImageRepository.findAllByStudyCafe_CafeId(studyCafe.getCafeId());
         String thumbnailUrl = "";
         List<String> multipleImageUrls = new ArrayList<>();
@@ -53,8 +53,8 @@ public class CafeImageService {
             }
         }
 
-        if(thumbnail != null) s3Service.deleteImageFromS3(thumbnailUrl);
-        if(multipleImages != null) {
+        if(thumbnailUrl != null) s3Service.deleteImageFromS3(thumbnailUrl);
+        if(!multipleImageUrls.isEmpty()) {
             for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
         }
     }
