@@ -41,20 +41,12 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestParam("cafe_name") String cafeName,
-                                    @RequestPart("address") AddressRequestDto address,
-                                    @RequestParam("opening_hours") String openingHours,
-                                    @RequestParam("closed_hours") String closedHours,
-                                    @RequestParam("closed_day") String closedDay,
-                                    @RequestParam("cafe_phone") String cafePhone,
-                                    @RequestParam("seats") Integer seats,
-                                    @RequestPart("room_info") RoomInfoRequestDto roomInfo,
-                                    @RequestPart("usage_fee") List<UsageFeeRequestDto> usageFee,
-                                    @RequestParam("title_image") MultipartFile titleImage,
-                                    @RequestParam("multiple_images") List<MultipartFile> multipleImages,
-                                    @RequestParam("seat_chart_image") MultipartFile seatChartImage) {
+    public Response updateStudyCafe(@RequestPart(value = "data") ManagerRequestDto requestDto,
+                                    @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
+                                    @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages,
+                                    @RequestPart(value = "seat_chart_image", required = false) MultipartFile seatChartImage) {
         ManagerRequestDto managerRequestDto = new ManagerRequestDto(
-                cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
+                requestDto, titleImage, multipleImages, seatChartImage);
 
         System.out.println(managerRequestDto.getCafePhone());
         System.out.println(managerRequestDto.getCafeName());

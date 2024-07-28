@@ -27,4 +27,19 @@ public class ManagerRequestDto {
     private MultipartFile titleImage;
     private List<MultipartFile> multipleImages;
     private MultipartFile seatChartImage;
+
+    public ManagerRequestDto(ManagerRequestDto requestDto, MultipartFile titleImage, List<MultipartFile> multipleImages,
+                             MultipartFile seatChartImage) {
+        this.cafeName = requestDto.getCafeName();
+        this.address = requestDto.getAddress();
+        this.openingHours = requestDto.getOpeningHours();
+        this.closedDay = requestDto.getClosedDay();
+        this.cafePhone = requestDto.getCafePhone();
+        this.seats = requestDto.getSeats();
+        this.roomInfo = requestDto.getRoomInfo();
+        this.usageFee = requestDto.getUsageFee();
+        this.titleImage = titleImage;
+        this.multipleImages = multipleImages;
+        this.seatChartImage = seatChartImage;
+    }
 }
