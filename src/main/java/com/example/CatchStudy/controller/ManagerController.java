@@ -41,7 +41,15 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestBody ManagerRequestDto managerRequestDto) {
+    public Response updateStudyCafe(@RequestParam String cafeName, @RequestParam AddressRequestDto address,
+                                    @RequestParam String openingHours, @RequestParam String closedHours,
+                                    @RequestParam String closedDay, @RequestParam String cafePhone,
+                                    @RequestParam Integer seats, @RequestParam RoomInfoRequestDto roomInfo,
+                                    @RequestParam List<UsageFeeRequestDto> usageFee, @RequestParam MultipartFile titleImage,
+                                    @RequestParam List<MultipartFile> multipleImages, @RequestParam MultipartFile seatChartImage) {
+        ManagerRequestDto managerRequestDto = new ManagerRequestDto(
+                cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
+
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
     }
