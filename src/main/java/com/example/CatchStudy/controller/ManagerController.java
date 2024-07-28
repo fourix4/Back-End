@@ -45,8 +45,6 @@ public class ManagerController {
 
     @GetMapping("/manager")
     public Response getStudyCafe() {
-        ManagerResponseDto managerResponseDto = managerService.getStudyCafe();
-        System.out.println("controller : " + managerResponseDto.getMultipleImages().size());
-        return Response.success(Result.toResponseDto(managerResponseDto));
+        return Response.success(Result.toResponseDto(managerService.getStudyCafe()));
     }
 }
