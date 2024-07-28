@@ -32,6 +32,7 @@ public class ManagerResponseDto {
 
     public ManagerResponseDto(StudyCafe studyCafe, int seats, RoomInfoResponseDto roomInfo, List<UsageFeeResponseDto> usageFee,
                               String titleImage, List<String> multipleImages, String seatChartImage) {
+        System.out.println(multipleImages.size());
         this.cafeName = studyCafe.getCafeName();
         this.address = new AddressResponseDto(studyCafe);
         this.openingHours = studyCafe.getOpeningHours();

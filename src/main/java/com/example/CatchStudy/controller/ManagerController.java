@@ -38,15 +38,6 @@ public class ManagerController {
                                     @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
                                     @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
 
-        for(MultipartFile image : multipleImages) {
-            if (image != null && !image.isEmpty()) {
-                System.out.println("Title Image Name: " + image.getOriginalFilename());
-                System.out.println("Title Image Size: " + image.getSize());
-            } else {
-                System.out.println("No Title Image Provided");
-            }
-        }
-
         managerService.updateStudyCafe(managerRequestDto, titleImage, multipleImages);
         return Response.success();
     }
