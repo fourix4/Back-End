@@ -4,6 +4,7 @@ import com.example.CatchStudy.domain.dto.request.AddressRequestDto;
 import com.example.CatchStudy.domain.dto.request.ManagerRequestDto;
 import com.example.CatchStudy.domain.dto.request.RoomInfoRequestDto;
 import com.example.CatchStudy.domain.dto.request.UsageFeeRequestDto;
+import com.example.CatchStudy.domain.dto.response.ManagerResponseDto;
 import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.domain.dto.response.Result;
 import com.example.CatchStudy.service.ManagerService;
@@ -44,6 +45,8 @@ public class ManagerController {
 
     @GetMapping("/manager")
     public Response getStudyCafe() {
-        return Response.success(Result.toResponseDto(managerService.getStudyCafe()));
+        ManagerResponseDto managerResponseDto = managerService.getStudyCafe();
+        System.out.println("controller : " + managerResponseDto.getMultipleImages().size());
+        return Response.success(Result.toResponseDto(managerResponseDto));
     }
 }
