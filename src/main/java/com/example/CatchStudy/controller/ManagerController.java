@@ -41,13 +41,26 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@ModelAttribute ManagerRequestDto managerRequestDto) {
+    public Response updateStudyCafe(@RequestParam("cafe_name") String cafeName,
+                                    @RequestPart("address") AddressRequestDto address,
+                                    @RequestParam("opening_hours") String openingHours,
+                                    @RequestParam("closed_hours") String closedHours,
+                                    @RequestParam("closed_day") String closedDay,
+                                    @RequestParam("cafe_phone") String cafePhone,
+                                    @RequestParam("seats") Integer seats,
+                                    @RequestPart("room_info") RoomInfoRequestDto roomInfo,
+                                    @RequestPart("usage_fee") List<UsageFeeRequestDto> usageFee,
+                                    @RequestParam("title_image") MultipartFile titleImage,
+                                    @RequestParam("multiple_images") List<MultipartFile> multipleImages,
+                                    @RequestParam("seat_chart_image") MultipartFile seatChartImage) {
+        ManagerRequestDto managerRequestDto = new ManagerRequestDto(
+                cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
 
         System.out.println(managerRequestDto.getCafePhone());
         System.out.println(managerRequestDto.getCafeName());
         System.out.println(managerRequestDto.getAddress().getCity());
         System.out.println(managerRequestDto.getRoomInfo().getCancelAvailableTime());
-        ;
+
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
     }
