@@ -6,6 +6,7 @@ import com.example.CatchStudy.global.enums.ImageType;
 import com.example.CatchStudy.repository.CafeImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,8 +55,10 @@ public class CafeImageService {
             }
         }
 
-        s3Service.deleteImageFromS3(thumbnailUrl);
-        s3Service.deleteImageFromS3(seatChartUrl);
-        for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
+        if(thumbnail != null) s3Service.deleteImageFromS3(thumbnailUrl);
+        if(seatChart != null) s3Service.deleteImageFromS3(seatChartUrl);
+        if(multipleImages != null) {
+            for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
+        }
     }
 }
