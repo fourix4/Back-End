@@ -28,10 +28,7 @@ public class ManagerController {
                                   @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
 
         managerService.saveStudyCafe(managerRequestDto, titleImage, multipleImages);
-        System.out.println(managerRequestDto.getClosedDay());
-        System.out.println(managerRequestDto.getCafeName());
-        System.out.println(managerRequestDto.getSeats());
-        System.out.println(managerRequestDto.getCafePhone());
+
         return Response.success();
     }
 
@@ -39,10 +36,6 @@ public class ManagerController {
     public Response updateStudyCafe(@RequestPart(value = "data") ManagerRequestDto managerRequestDto,
                                     @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
                                     @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
-        System.out.println(managerRequestDto.getCafePhone());
-        System.out.println(managerRequestDto.getCafeName());
-        System.out.println(managerRequestDto.getAddress().getCity());
-        System.out.println(managerRequestDto.getRoomInfo().getCancelAvailableTime());
 
         managerService.updateStudyCafe(managerRequestDto, titleImage, multipleImages);
         return Response.success();
