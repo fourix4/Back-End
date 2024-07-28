@@ -23,16 +23,11 @@ public class ManagerController {
     private final ManagerService managerService;
 
     @PostMapping("/manager")
-    public Response saveStudyCafe(@RequestParam String cafeName, @RequestParam AddressRequestDto address,
-                                  @RequestParam String openingHours, @RequestParam String closedHours,
-                                  @RequestParam String closedDay, @RequestParam String cafePhone,
-                                  @RequestParam Integer seats, @RequestParam RoomInfoRequestDto roomInfo,
-                                  @RequestParam List<UsageFeeRequestDto> usageFee, @RequestParam MultipartFile titleImage,
-                                  @RequestParam List<MultipartFile> multipleImages, @RequestParam MultipartFile seatChartImage) {
-        ManagerRequestDto managerRequestDto = new ManagerRequestDto(
-                cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
+    public Response saveStudyCafe(@RequestPart(value = "data") ManagerRequestDto managerRequestDto,
+                                  @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
+                                  @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
 
-        managerService.saveStudyCafe(managerRequestDto);
+        managerService.saveStudyCafe(managerRequestDto, titleImage, multipleImages);
         System.out.println(managerRequestDto.getClosedDay());
         System.out.println(managerRequestDto.getCafeName());
         System.out.println(managerRequestDto.getSeats());
@@ -41,19 +36,15 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestPart(value = "data") ManagerRequestDto requestDto,
+    public Response updateStudyCafe(@RequestPart(value = "data") ManagerRequestDto managerRequestDto,
                                     @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
-                                    @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages,
-                                    @RequestPart(value = "seat_chart_image", required = false) MultipartFile seatChartImage) {
-        ManagerRequestDto managerRequestDto = new ManagerRequestDto(
-                requestDto, titleImage, multipleImages, seatChartImage);
-
+                                    @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
         System.out.println(managerRequestDto.getCafePhone());
         System.out.println(managerRequestDto.getCafeName());
         System.out.println(managerRequestDto.getAddress().getCity());
         System.out.println(managerRequestDto.getRoomInfo().getCancelAvailableTime());
 
-        managerService.updateStudyCafe(managerRequestDto);
+        managerService.updateStudyCafe(managerRequestDto, titleImage, multipleImages);
         return Response.success();
     }
 

@@ -25,14 +25,10 @@ public class CafeImageService {
     private final CafeImageRepository cafeImageRepository;
     private final S3Service s3Service;
 
-    public void saveCafeImages(MultipartFile thumbnail, MultipartFile seatChart, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
+    public void saveCafeImages(MultipartFile thumbnail, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
         String thumbnailUrl = s3Service.upload(thumbnail);
         CafeImage cafeThumbnailImage = new CafeImage(ImageType.thumbnail, thumbnailUrl, studyCafe);
         cafeImageRepository.save(cafeThumbnailImage);
-
-        String seatChartUrl = s3Service.upload(seatChart);
-        CafeImage cafeSeatChartImage = new CafeImage(ImageType.seatingChart, seatChartUrl, studyCafe);
-        cafeImageRepository.save(cafeSeatChartImage);
 
         for(MultipartFile imageFile : multipleImages) {
             String imageFileUrl = s3Service.upload(imageFile);
@@ -41,22 +37,19 @@ public class CafeImageService {
         }
     }
 
-    public void deleteCafeImages(MultipartFile thumbnail, MultipartFile seatChart, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
+    public void deleteCafeImages(MultipartFile thumbnail, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
         List<CafeImage> images = cafeImageRepository.findAllByStudyCafe_CafeId(studyCafe.getCafeId());
         String thumbnailUrl = "";
-        String seatChartUrl = "";
         List<String> multipleImageUrls = new ArrayList<>();
 
         for(CafeImage image : images) {
             switch (image.getImageType()) {
                 case thumbnail -> thumbnailUrl = image.getCafeImage();
-                case seatingChart -> seatChartUrl = image.getCafeImage();
                 case cafeImage ->  multipleImageUrls.add(image.getCafeImage());
             }
         }
 
         if(thumbnail != null) s3Service.deleteImageFromS3(thumbnailUrl);
-        if(seatChart != null) s3Service.deleteImageFromS3(seatChartUrl);
         if(multipleImages != null) {
             for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
         }
