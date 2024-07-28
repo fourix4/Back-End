@@ -41,14 +41,20 @@ public class ManagerController {
     }
 
     @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestParam String cafeName, @RequestParam AddressRequestDto address,
-                                    @RequestParam String openingHours, @RequestParam String closedHours,
-                                    @RequestParam String closedDay, @RequestParam String cafePhone,
-                                    @RequestParam Integer seats, @RequestParam RoomInfoRequestDto roomInfo,
-                                    @RequestParam List<UsageFeeRequestDto> usageFee, @RequestParam MultipartFile titleImage,
-                                    @RequestParam List<MultipartFile> multipleImages, @RequestParam MultipartFile seatChartImage) {
-        ManagerRequestDto managerRequestDto = new ManagerRequestDto(
-                cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
+    public Response updateStudyCafe(@RequestParam(name = "cafe_name") String cafeName,
+                                    @RequestParam(name = "address") AddressRequestDto address,
+                                    @RequestParam(name = "opening_hours") String openingHours,
+                                    @RequestParam(name = "closed_hours") String closedHours,
+        @RequestParam(name = "closed_day") String closedDay,
+        @RequestParam(name = "cafe_phone") String cafePhone,
+        @RequestParam(name = "seats") Integer seats,
+        @RequestParam(name = "room_info") RoomInfoRequestDto roomInfo,
+        @RequestParam(name = "usage_fee") List<UsageFeeRequestDto> usageFee,
+        @RequestParam(name = "title_image", required = false) MultipartFile titleImage,
+        @RequestParam(name = "multiple_images", required = false) List<MultipartFile> multipleImages,
+        @RequestParam(name = "seat_chart_image", required = false) MultipartFile seatChartImage) {
+            ManagerRequestDto managerRequestDto = new ManagerRequestDto(
+                    cafeName, address, openingHours, closedHours, closedDay, cafePhone, seats, roomInfo, usageFee, titleImage, multipleImages, seatChartImage);
 
         managerService.updateStudyCafe(managerRequestDto);
         return Response.success();
