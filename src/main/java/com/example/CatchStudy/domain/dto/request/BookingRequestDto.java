@@ -17,14 +17,10 @@ public class BookingRequestDto {
     Long cafe_id;
     Long seat_id;
     Integer time;
-
     Integer amount;
     String payment_type;
-
     Long room_id;
-
     String type;
-
     String start_time;
 
     public SeatBookingDto toSeatDto() {

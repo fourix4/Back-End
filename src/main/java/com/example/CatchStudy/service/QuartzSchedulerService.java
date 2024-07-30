@@ -18,7 +18,6 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class QuartzSchedulerService {
-
     private final Scheduler scheduler;
 
     public void scheduleBookingSeatStatusCheck(Long bookingId, Payment payment) throws SchedulerException { //좌석 결제 30분 후 입실 상태 확인
@@ -80,6 +79,4 @@ public class QuartzSchedulerService {
 
         scheduler.scheduleJob(jobDetail, trigger);
     }
-
-
 }
