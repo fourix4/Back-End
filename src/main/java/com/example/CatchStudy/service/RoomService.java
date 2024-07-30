@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class RoomService {
-
     private final RoomRepository roomRepository;
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
 

@@ -12,5 +12,4 @@ import lombok.Setter;
 public class SeatCheckOutRequestDto {
 
     private Long booking_id;
-
 }
