@@ -34,4 +34,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     )
     Optional<Booking> findBookingBeforeEnteringSeat(@Param(value = "userId")Long userId, @Param(value = "code")String code);
 
+    @Query(
+            value = "select b from Booking b join fetch b.seat join fetch b.studyCafe " +
+                    "where b.user.userId = :userId and " +
+                    "b.bookedRoomInfo is null and (b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom')"
+
+    )
+    List<Booking> getAvailableSeatsFetchJoin(@Param(value = "userId")Long userId);
+
+    @Query(
+            value = "select b from Booking b join fetch b.bookedRoomInfo join fetch b.studyCafe " +
+                    "where b.user.userId = :userId and " +
+                    "b.seat is null and (b.status = 'beforeEnteringRoom' or b.status = 'enteringRoom')"
+
+    )
+    List<Booking> getAvailableRoomsFetchJoin(@Param(value = "userId")Long userId);
 }
