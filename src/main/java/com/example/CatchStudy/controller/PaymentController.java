@@ -42,9 +42,8 @@ public class PaymentController {
 
     @GetMapping("/payment/success/{userId}/{paymentId}")
     public void afterPayRequest(@RequestParam("pg_token") String pgToken, @PathVariable("userId") Long userId, @PathVariable("paymentId") Long paymentId, HttpServletResponse response) throws IOException { //결제 성공
-        paymentService.kakaoPayApprove(pgToken,userId,paymentId);
+        paymentService.kakaoPayApprove(pgToken, userId, paymentId);
         String redirectUrl = "http://localhost:3000/payment-success";
         response.sendRedirect(redirectUrl);
-        //return "redirect:http://localhost:3000/payment-success";
     }
 }

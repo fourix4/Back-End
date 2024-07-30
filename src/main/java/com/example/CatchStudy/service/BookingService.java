@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class BookingService {
-
     private final BookingRepository bookingRepository;
     private final UsersRepository usersRepository;
     private final SeatRepository seatRepository;
@@ -50,8 +49,6 @@ public class BookingService {
     private final UsageFeeRepository usageFeeRepository;
 
     private final QuartzSchedulerService quartzSchedulerService;
-
-
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long saveBooking(SeatBookingDto dto, Long userId) {
@@ -266,8 +263,6 @@ public class BookingService {
         booking.checkOutSeatBooking(LocalDateTime.now());
         booking.getSeat().checkOutSeat(true);
     }
-
-
 
     @Transactional
     public void deleteBooking(Long paymentId) {

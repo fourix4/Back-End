@@ -35,11 +35,7 @@ public class BookingController {
         User user = (User) authentication.getPrincipal();
         Long userId = usersRepository.findByEmail(user.getUsername()).getUserId();
         SeatBookingDto dto = null;
-        System.out.println("bookingrequest====================================");
-        System.out.println(bookingRequestDto.getSeat_id());
-        System.out.println(bookingRequestDto.getType());
-        System.out.println(bookingRequestDto.getTime());
-        System.out.println("bookingrequest====================================");
+
         if (bookingRequestDto.getType().equals("seat")) {
             dto = bookingRequestDto.toSeatDto();
         } else if (bookingRequestDto.getType().equals("room")) {
@@ -75,6 +71,4 @@ public class BookingController {
         bookingService.checkOutSeat(dto.getBooking_id());
         return Response.success();
     }
-
-
 }

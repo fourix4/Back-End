@@ -27,6 +27,4 @@ public class QuartzJobFactory extends AdaptableJobFactory implements Application
         AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
         autowireCapableBeanFactory.autowireBean(jobInstance);
     }
-
-
 }
