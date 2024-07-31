@@ -31,5 +31,4 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Response.error("500", "DATABASE ERROR"));
     }
-
 }

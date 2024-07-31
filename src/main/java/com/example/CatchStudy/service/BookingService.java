@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class BookingService {
-
     private final BookingRepository bookingRepository;
     private final UsersRepository usersRepository;
     private final SeatRepository seatRepository;
@@ -50,8 +49,6 @@ public class BookingService {
     private final UsageFeeRepository usageFeeRepository;
 
     private final QuartzSchedulerService quartzSchedulerService;
-
-
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long saveBooking(SeatBookingDto dto, Long userId) {
@@ -124,7 +121,7 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public BookingHistoryResponseDto getBookingHistory(Long userId) { // 최근 30개 예약 내역 조회
-        List<Payment> payments = paymentRepository.findTop30ByBooking_User_UserIdOrderByPaymentTimeDesc(userId);
+        List<Payment> payments = paymentRepository.find30PaymentFetchJoin(userId);
         List<BookingHistoryDto> bookingHistoryDtos = payments.stream().map(payment -> {
             Booking booking = payment.getBooking();
             StudyCafe studyCafe = booking.getStudyCafe();
@@ -157,7 +154,7 @@ public class BookingService {
         LocalDateTime startTime = startDate.atStartOfDay();
         LocalDateTime endTime = endDate.atTime(LocalTime.MAX);
 
-        Page<Payment> paymentsPage = paymentRepository.findByBooking_User_UserIdAndPaymentTimeBetween(userId,startTime,endTime,pageable);
+        Page<Payment> paymentsPage = paymentRepository.findBookingPaymentTimeBetweenFetchJoin(userId,startTime,endTime,pageable);
         List<BookingHistoryDto> bookingDtos = paymentsPage.getContent().stream().map(payment -> {
             Booking booking = payment.getBooking();
             StudyCafe studyCafe = booking.getStudyCafe();
@@ -186,7 +183,7 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public AvailableBookingResponseDto getAvailableBooking(Long userId) { //현재 예약 내용 조회
-        List<AvailableBookingSeatDto> bookingSeatDtos = Optional.ofNullable(bookingRepository.getAvailableSeats(userId))
+        List<AvailableBookingSeatDto> bookingSeatDtos = Optional.ofNullable(bookingRepository.getAvailableSeatsFetchJoin(userId))
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(booking -> {
@@ -212,7 +209,7 @@ public class BookingService {
                 .sorted(Comparator.comparing(AvailableBookingSeatDto::getPayment_time))
                 .collect(Collectors.toList());
 
-        List<AvailableBookingRoomDto> bookingRoomDtos = Optional.ofNullable(bookingRepository.getAvailableRooms(userId))
+        List<AvailableBookingRoomDto> bookingRoomDtos = Optional.ofNullable(bookingRepository.getAvailableRoomsFetchJoin(userId))
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(booking -> {
@@ -266,8 +263,6 @@ public class BookingService {
         booking.checkOutSeatBooking(LocalDateTime.now());
         booking.getSeat().checkOutSeat(true);
     }
-
-
 
     @Transactional
     public void deleteBooking(Long paymentId) {

@@ -22,5 +22,4 @@ public class CatchStudyException extends RuntimeException {
         }
         return String.format("%s", "%s", errorCode.getMessage(), message);
     }
-
 }
