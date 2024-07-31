@@ -45,7 +45,11 @@ public class ChatService {
                 orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
 
         ChatRoom chatRoom = chatRoomRepository.findByUserIdAndCafeId(user.getUserId(), studyCafe.getCafeId()).
-                orElse(chatRoomRepository.save(new ChatRoom(user, studyCafe)));
+                orElseGet(() -> {
+                    ChatRoom newChatRoom = new ChatRoom(user, studyCafe);
+                    return chatRoomRepository.save(newChatRoom);
+                }
+        );
 
         return new ChatRoomResponseDto(chatRoom);
     }
