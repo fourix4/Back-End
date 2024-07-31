@@ -21,6 +21,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +38,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = resolveToken(request);
         String uri = request.getRequestURI();
 
-        if (uri.equals("/api/users/reissuance")) {
+        List<String> excludedPaths = Arrays.asList(
+                "/api/users/reissuance",
+                "/api/studycafes/search"
+        );
+
+        List<Pattern> excludedPatterns = Arrays.asList(
+                Pattern.compile("^/api/studycafes/\\d+$"), // /api/studycafes/{cafe_id}
+                Pattern.compile("^/api/studycafes/\\d+/seatingchart$") // /api/studycafes/{cafe_id}/seatingchart
+        );
+
+        if (excludedPaths.contains(uri) || excludedPatterns.stream().anyMatch(pattern -> pattern.matcher(uri).matches())) {
             filterChain.doFilter(request, response);
             return;
         }
