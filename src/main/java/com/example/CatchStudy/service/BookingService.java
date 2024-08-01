@@ -55,6 +55,12 @@ public class BookingService {
         Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         Booking booking = null;
         if (dto.getType() == SeatType.seat) {
+            StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(
+                    ()->new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND)
+            );
+
+            checkAvailableSeatsTime(studyCafe, dto.getTime());
+
             Seat seat = seatRepository.findBySeatIdLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
             if (!seat.getIsAvailable()) {
                 throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
@@ -276,5 +282,39 @@ public class BookingService {
         }
 
         paymentRepository.deleteByPaymentId(paymentId);
+    }
+    public void checkAvailableSeatsTime(StudyCafe studyCafe, Integer time){
+        LocalTime now = LocalDateTime.now().toLocalTime();
+        LocalTime openingTime = studyCafe.getOpeningHours();
+        LocalTime closingTime = studyCafe.getClosedHours();
+
+        // 카페 이용 시간 내에 있는지 확인
+        boolean isOpen;
+
+        if (closingTime.isAfter(openingTime)) {
+            isOpen = now.isAfter(openingTime) && now.isBefore(closingTime);
+
+        } else { //마감시간이 자정 이후 일 경우
+            isOpen = now.isAfter(openingTime) || now.isBefore(closingTime);
+        }
+        if(!isOpen){
+            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
+        }
+
+        int requestedDurationMinutes = time + 35;
+        LocalTime requestedEndTime = now.plusMinutes(requestedDurationMinutes);
+
+        boolean canUse;
+
+        if (closingTime.isAfter(openingTime)) { //마감시간이 자정 이전 일 경우
+            canUse = now.isBefore(closingTime) && requestedEndTime.isBefore(closingTime);
+        } else {
+            canUse = (now.isAfter(openingTime) || now.isBefore(closingTime)) &&
+                    (requestedEndTime.isBefore(closingTime) || requestedEndTime.isAfter(openingTime));
+        }
+
+        if (!canUse) {
+            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
+        }
     }
 }
