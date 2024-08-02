@@ -55,6 +55,8 @@ public class BookingService {
     public Long saveSeatBooking(SeatBookingDto dto,Users user,StudyCafe studyCafe){
         Payment payment = null;
 
+        checkAvailableSeatsTime(studyCafe, dto.getTime());
+
         try {
             Seat seat = seatRepository.findBySeatIdOptimisticLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
             if(!seat.getIsAvailable()){
