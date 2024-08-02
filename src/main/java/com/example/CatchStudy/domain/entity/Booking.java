@@ -16,29 +16,22 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
-
     @Column
     private LocalDateTime startTime;
-
     @Column
     private LocalDateTime endTime;
-
     @Column
     private String code;
-
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
-
     @Column
     private Integer time;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
-
     @OneToOne(orphanRemoval = true,fetch = FetchType.LAZY)
     @JoinColumn(name = "booked_room_info_id")
     private BookedRoomInfo bookedRoomInfo;

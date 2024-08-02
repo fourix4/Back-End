@@ -8,6 +8,7 @@ import com.example.CatchStudy.domain.dto.response.KakaoReadyResponseDto;
 import com.example.CatchStudy.domain.entity.*;
 import com.example.CatchStudy.global.enums.BookingStatus;
 import com.example.CatchStudy.global.enums.PaymentStatus;
+import com.example.CatchStudy.global.enums.SeatType;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.global.kakaopay.KakaoPayProperties;
@@ -18,6 +19,7 @@ import org.quartz.SchedulerException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestTemplate;
@@ -42,11 +44,18 @@ public class PaymentService {
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
     private final QuartzSchedulerService quartzSchedulerService;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public BookingResponseDto kakaoPayReady(SeatBookingDto dto, Long userId) { //카카오페이에 결제 요청
-        Long paymentId = bookingService.saveBooking(dto, userId);
-        Users users = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+        Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
+        Long paymentId = null;
+
+        if (dto.getType() == SeatType.seat) {
+            paymentId = bookingService.saveSeatBooking(dto,user,studyCafe);
+        }else if(dto.getType() == SeatType.room){
+            paymentId = bookingService.saveRoomBooking(dto,user);
+        }
+
         Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND));
 
         Map<String, String> parameters = new HashMap<>();
@@ -57,7 +66,7 @@ public class PaymentService {
         parameters.put("quantity", "1");                                                  // 상품 수량
         parameters.put("total_amount", String.valueOf(dto.getAmount()));                  // 상품 총액
         parameters.put("tax_free_amount", "0");
-        parameters.put("approval_url", "http://3.39.182.9:8080/api/payment/success" + "/" + users.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
+        parameters.put("approval_url", "http://3.39.182.9:8080/api/payment/success" + "/" + user.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
         parameters.put("cancel_url", "http://3.39.182.9:8080/api/payment/cancel/" + paymentId); // 취소 시 redirect url
         parameters.put("fail_url", "http://3.39.182.9:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
 

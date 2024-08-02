@@ -24,6 +24,9 @@ public class Seat {
     @JoinColumn(name = "cafe_id")
     private StudyCafe studyCafe;
 
+    @Version
+    private Long version;
+
     public void updateSeatStatus(Boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
