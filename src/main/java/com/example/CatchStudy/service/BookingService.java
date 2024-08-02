@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,50 +52,48 @@ public class BookingService {
     private final QuartzSchedulerService quartzSchedulerService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Long saveBooking(SeatBookingDto dto, Long userId) {
-        Users user = usersRepository.findByUserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
-        Booking booking = null;
-        if (dto.getType() == SeatType.seat) {
-            StudyCafe studyCafe = studyCafeRepository.findByCafeId(dto.getCafeId()).orElseThrow(
-                    ()->new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND)
-            );
+    public Long saveSeatBooking(SeatBookingDto dto,Users user,StudyCafe studyCafe){
+        Payment payment = null;
 
-            checkAvailableSeatsTime(studyCafe, dto.getTime());
-
-            Seat seat = seatRepository.findBySeatIdLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
-            if (!seat.getIsAvailable()) {
+        try {
+            Seat seat = seatRepository.findBySeatIdOptimisticLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
+            if(!seat.getIsAvailable()){
                 throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
             }
-
-            booking = bookingRepository.save(Booking.of(dto.getTime(), user, seat.getStudyCafe(), seat));
             seat.updateSeatStatus(false);
+            Booking booking = bookingRepository.save(Booking.of(dto.getTime(), user, studyCafe, seat));
+            payment =paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
 
-
-        } else if (dto.getType() == SeatType.room) {
-            Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(dto.getStartTime(), formatter);
-
-            if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), localDateTime, localDateTime.plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
-                throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
-            }
-
-            //예약 시작 시간 / 퇴실 시간 저장
-            LocalDateTime bookingStartTime = localDateTime;
-            Integer time = dto.getTime();
-            LocalTime localTime = LocalTime.of(bookingStartTime.getHour(), bookingStartTime.getMinute());
-            LocalTime endLocalTime = localTime.plusMinutes(time);
-            LocalDate localDate = LocalDate.of(bookingStartTime.getYear(), bookingStartTime.getMonth(), bookingStartTime.getDayOfMonth());
-            LocalDateTime bookedEndTime = bookingStartTime.plusMinutes(time);
-
-            BookedRoomInfo bookedRoomInfo = BookedRoomInfo.of(room, localTime, endLocalTime, localDate, bookingStartTime, bookedEndTime);
-            bookedRoomInfoRepository.save(bookedRoomInfo);
-            booking = bookingRepository.save(Booking.of(user, time, room.getStudyCafe(), bookedRoomInfo, bookingStartTime, bookedEndTime));
-
-
+        }catch (ObjectOptimisticLockingFailureException e){
+            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
         }
-        return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready)).getPaymentId();
+        return payment.getPaymentId();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Long saveRoomBooking(SeatBookingDto dto,Users user){
+        Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
+        Payment payment = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime localDateTime = LocalDateTime.parse(dto.getStartTime(), formatter);
+
+        if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), localDateTime, localDateTime.plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
+            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
+        }
+
+        //예약 시작 시간 / 퇴실 시간 저장
+        LocalDateTime bookingStartTime = localDateTime;
+        Integer time = dto.getTime();
+        LocalTime localTime = LocalTime.of(bookingStartTime.getHour(), bookingStartTime.getMinute());
+        LocalTime endLocalTime = localTime.plusMinutes(time);
+        LocalDate localDate = LocalDate.of(bookingStartTime.getYear(), bookingStartTime.getMonth(), bookingStartTime.getDayOfMonth());
+        LocalDateTime bookedEndTime = bookingStartTime.plusMinutes(time);
+
+        BookedRoomInfo bookedRoomInfo = BookedRoomInfo.of(room, localTime, endLocalTime, localDate, bookingStartTime, bookedEndTime);
+        bookedRoomInfoRepository.save(bookedRoomInfo);
+        Booking booking = bookingRepository.save(Booking.of(user, time, room.getStudyCafe(), bookedRoomInfo, bookingStartTime, bookedEndTime));
+        payment = paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
+        return payment.getPaymentId();
     }
 
     @Transactional(readOnly = true)
