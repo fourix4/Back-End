@@ -44,7 +44,10 @@ jobs:
         env:
           spring.security.oauth2.client.registration.kakao.client-id: ${{ secrets.KAKAO_CLIENT_ID }}
           spring.security.oauth2.client.registration.kakao.redirect-uri: ${{ secrets.KAKAO_REDIRECT_URI }}
-
+          google.client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+          google.client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          google.redirect_uri: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
