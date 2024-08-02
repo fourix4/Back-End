@@ -305,13 +305,23 @@ public class BookingService {
         int requestedDurationMinutes = time + 35;
         LocalTime requestedEndTime = now.plusMinutes(requestedDurationMinutes);
 
-        boolean canUse;
+        boolean canUse = true;
 
-        if (closingTime.isAfter(openingTime)) { //마감시간이 자정 이전 일 경우
-            canUse = now.isBefore(closingTime) && requestedEndTime.isBefore(closingTime);
-        } else {
-            canUse = (now.isAfter(openingTime) || now.isBefore(closingTime)) &&
-                    (requestedEndTime.isBefore(closingTime) || requestedEndTime.isAfter(openingTime));
+        if(closingTime.isAfter(openingTime)){//마감시간이 자정 이전 일 경우
+            if(!requestedEndTime.isBefore(LocalTime.MIDNIGHT) && requestedEndTime.isBefore(openingTime)){ // 끝나는 시간이 자정 이후 영업 시작 시간 전이면(0시~9시)
+                canUse = false;
+            }
+            else if(requestedEndTime.isBefore(LocalTime.of(23,59))){// 끝나는 시간이 자정 이전 일 때
+                if(requestedEndTime.isAfter(closingTime)){
+                    canUse = false;
+                }
+            }
+        }else{
+            if(!requestedEndTime.isBefore(LocalTime.MIDNIGHT) && requestedEndTime.isBefore(openingTime)){ // 끝나는 시간이 자정 이후 영업 시작 시간 전이면
+                if(requestedEndTime.isAfter(closingTime)){
+                    canUse = false;
+                }
+            }
         }
 
         if (!canUse) {
