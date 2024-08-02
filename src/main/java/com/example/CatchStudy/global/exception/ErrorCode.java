@@ -12,8 +12,9 @@ public enum ErrorCode {
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     EXPIRED_LOGIN_ERROR(HttpStatus.FORBIDDEN, "만료된 로그인입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
-
+    INVALID_OAUTH_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "잘못된 OAuth 인증요청입니다."),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "권한이 없는 유저입니다."),
+
     BOOKING_NOT_AVAILABLE(HttpStatus.NOT_ACCEPTABLE, "예약이 불가능 합니다"),
     STUDYCAFE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스터디카페를 찾을 수 없습니다"),
     STUDYCAFE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND,"스터디카페 이미 사진을 찾을 수 없습니다"),
