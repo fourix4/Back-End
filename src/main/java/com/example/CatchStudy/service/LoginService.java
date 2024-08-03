@@ -23,6 +23,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,28 +44,31 @@ public class LoginService {
 
     @Transactional
     public String googleLogin(OauthCodeRequestDto oauthCodeRequestDto) {
+        GoogleOAuthToken oAuthToken = getAccessToken(oauthCodeRequestDto.getCode());
+        GoogleProfile googleProfile = getGoogleProfile(oAuthToken);
+
+        Users user = usersRepository.findByEmail(googleProfile.getEmail());
+        if(user == null) user = usersRepository.save(googleProfile.toEntity());
+        JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
+
+        return jwtToken.getAccessToken();
+    }
+
+    public GoogleOAuthToken getAccessToken(String code) {
         RestTemplate rt = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
-        ObjectMapper objectMapper = new ObjectMapper();
         GoogleOAuthToken oAuthToken = null;
-        GoogleProfile googleProfile = null;
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", grantType);
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("code", oauthCodeRequestDto.getCode());
-        params.add("redirect_uri", redirectUri);
-
-        HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, tokenHeaders);
+        Map<String, String> params = new HashMap<>();
+        params.put("grant_type", grantType);
+        params.put("client_id", clientId);
+        params.put("client_secret", clientSecret);
+        params.put("code", code);
+        params.put("redirect_uri", redirectUri);
 
         // google에서 token 받기
-        ResponseEntity<String> response = rt.exchange(
-                "https://oauth2.googleapis.com/token",
-                HttpMethod.POST,
-                googleTokenRequest,
-                String.class
-        );
+        ResponseEntity<String> response = rt.postForEntity("https://oauth2.googleapis.com/token", params, String.class);
         log.info("[getGoogleProfile] code로 인증을 받은뒤 응답받은 token 값 : {}",response);
         // token에서 값 추출
         try {
@@ -72,9 +78,17 @@ public class LoginService {
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 
+        return oAuthToken;
+    }
+
+    public GoogleProfile getGoogleProfile(GoogleOAuthToken oAuthToken) {
+        RestTemplate rt = new RestTemplate();
+        ObjectMapper objectMapper = new ObjectMapper();
+        GoogleProfile googleProfile = null;
+
         HttpHeaders profileHeaders = new HttpHeaders();
         // 헤더에 토큰값 설정
-        profileHeaders.add("Authorization", "Bearer "+oAuthToken.getAccess_token());
+        profileHeaders.add("Authorization", "Bearer "+ oAuthToken.getAccess_token());
         HttpEntity<MultiValueMap<String,String>>googleProfileRequest = new HttpEntity<>(profileHeaders);
         // token을 사용하여 사용자 정보 받기
         ResponseEntity<String>googleProfileResponse = rt.exchange(
@@ -91,10 +105,6 @@ public class LoginService {
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 
-        Users user = usersRepository.findByEmail(googleProfile.getEmail());
-        if(user == null) user = usersRepository.save(googleProfile.toEntity());
-        JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
-
-        return jwtToken.getAccessToken();
+        return googleProfile;
     }
 }
