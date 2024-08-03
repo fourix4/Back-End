@@ -23,6 +23,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,14 +60,12 @@ public class LoginService {
         GoogleOAuthToken oAuthToken = null;
         ObjectMapper objectMapper = new ObjectMapper();
 
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", grantType);
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("code", code);
-        params.add("redirect_uri", redirectUri);
-
-        HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, tokenHeaders);
+        Map<String, String> params = new HashMap<>();
+        params.put("grant_type", grantType);
+        params.put("client_id", clientId);
+        params.put("client_secret", clientSecret);
+        params.put("code", code);
+        params.put("redirect_uri", redirectUri);
 
         // google에서 token 받기
         ResponseEntity<String> response = rt.postForEntity("https://oauth2.googleapis.com/token", params, String.class);
