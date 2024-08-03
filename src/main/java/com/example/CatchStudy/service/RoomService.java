@@ -31,67 +31,128 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public List getBookingStatusByDate(Long roomId, String date, Integer time) { //날짜별 예약 현황
-
         Room room = roomRepository.findByRoomId(roomId).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
         LocalDate selectedDate = LocalDate.of(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(4, 6)), Integer.parseInt(date.substring(6, 8)));
         LocalTime startTime = room.getStudyCafe().getOpeningHours(); // 영업 시작 시간
         LocalTime endTime = room.getStudyCafe().getClosedHours(); // 영업 마감 시간
 
-        LocalTime nowTime = startTime;
-        LocalTime nowTime2 = null; //오늘 선택했을 때
+        LocalDateTime now = LocalDateTime.now();
         List<LocalTime> dates = new ArrayList<>(); // 선택 할 수 있는 시작 시간 후보
 
-        LocalDateTime rightNow = LocalDateTime.now();
-        LocalDate today = rightNow.toLocalDate();
-        LocalTime currentTime = rightNow.toLocalTime();
+        if(now.toLocalDate().isEqual(selectedDate)){ //오늘이면
+            if(endTime.isBefore(startTime)) { //마감 시간이 새벽이면
+                if(now.toLocalTime().isBefore(startTime)){ // 현재 새벽이면
+                    LocalTime availableTime = LocalTime.of(now.getHour(),0);
 
-        if (endTime.isBefore(startTime)) { // 마감시간이 00:00 이후이면
+                    while (true){
+                        if(availableTime.isAfter(now.toLocalTime())){
+                            break;
+                        }
+                        availableTime = availableTime.plusMinutes(30);
+                    }
+                    while(true){
+                        if(!availableTime.isBefore(endTime) || availableTime.plusMinutes(time).isAfter(endTime)){ // 이용 끝나는시간이 마감시간 전이고 시작시간이 마감시간 전인지 확인
+                            break;
+                        }
+                        dates.add(availableTime);
+                        availableTime = availableTime.plusMinutes(30);
+                    }
 
-            LocalDateTime now = LocalDateTime.of(selectedDate,startTime);
-            LocalDateTime last = LocalDateTime.of(selectedDate,endTime).plusDays(1);
-            LocalDateTime now2 = null;
+                    LocalDateTime availableDate = LocalDateTime.of(selectedDate,startTime); // 8월 5일 9시
+                    availableTime = availableDate.toLocalTime();
 
-            if(today.isEqual(selectedDate)){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
-                now2 = LocalDateTime.of(rightNow.getYear(), rightNow.getMonth(), rightNow.getDayOfMonth(), rightNow.getHour(),0);
+                    while(true){
+                        if(!availableTime.isBefore(LocalTime.MIDNIGHT) && availableTime.isBefore(endTime)) { // 이용 시작시간이 자정을 넘어가는 경우
+                            break;
+                        }
+                        if(availableDate.plusMinutes(time).isAfter(LocalDateTime.of(selectedDate,endTime).plusDays(1))){ // 이용 끝나는 시간이 마감 시간을 넘어간 경우
+                            break;
+                        }
+                        dates.add(availableTime);
+                        availableDate = availableDate.plusMinutes(30);
+                        availableTime = availableDate.toLocalTime();
+                    }
+                }else{
+
+                    LocalTime availableTime = LocalTime.of(now.getHour(),0);
+
+                    while(true){
+                        if(!availableTime.isBefore(startTime) && availableTime.isAfter(now.toLocalTime())){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
+                            break;
+                        }
+                        availableTime = availableTime.plusMinutes(30);
+                    }
+
+                    LocalDateTime availableDate = LocalDateTime.of(selectedDate,availableTime);
+
+
+                    while(true){
+                        if(!availableTime.isBefore(LocalTime.MIDNIGHT) && availableTime.isBefore(endTime)) { // 이용 시작시간이 자정을 넘어가는 경우
+                            break;
+                        }
+                        if(availableDate.plusMinutes(time).isAfter(LocalDateTime.of(selectedDate,endTime).plusDays(1))){ //이용 끝나는 시간이 마감 시간을 넘어간 경우
+                            break;
+
+                        }
+                        dates.add(availableTime);
+                        availableDate = availableDate.plusMinutes(30);
+                        availableTime = availableDate.toLocalTime();
+                    }
+                }
+            }else{
+                LocalTime availableTime = LocalTime.of(now.getHour(),0);
+
                 while(true){
-                    if(!now2.isBefore(now)&& now2.isAfter(rightNow)){
+                    if(!availableTime.isBefore(startTime) && availableTime.isAfter(now.toLocalTime())){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
                         break;
                     }
-                    now2 = now2.plusMinutes(30);
+                    availableTime = availableTime.plusMinutes(30);
                 }
-                now = now2;
-            }
 
-            while(true){
-                if(now.plusMinutes(time).isAfter(last)){
-                    break;
+                while (true){
+                    if(availableTime.plusMinutes(time).isAfter(endTime)){ //퇴실 시간이 영업 마감 시간 이후인 경우
+                        break;
+                    }
+                    dates.add(availableTime);
+                    availableTime = availableTime.plusMinutes(30);
                 }
-                dates.add(LocalTime.of(now.getHour(),now.getMinute()));
-                now = now.plusMinutes(30);
             }
-
         }else{
-
-            if(today.isEqual(selectedDate)){ //선택한 날짜가 오늘이면 현재 시간 이후 부터 선택 가능
-
-                nowTime2 = LocalTime.of(rightNow.getHour(),0);
+            if(endTime.isBefore(startTime)){
+                LocalTime availableTime = LocalTime.of(0,0);
                 while(true){
-                    if(!nowTime2.isBefore(startTime)&& nowTime2.isAfter(currentTime)){
+                    if(!availableTime.isBefore(endTime) || availableTime.plusMinutes(time).isAfter(endTime)){ //이용 끝나는시간이 마감시간 전이고 시작시간이 마감시간 전인지 확인
                         break;
                     }
-                    nowTime2 = nowTime2.plusMinutes(30);
+                    dates.add(availableTime);
+                    availableTime = availableTime.plusMinutes(30);
                 }
-                nowTime = nowTime2;
-            }
 
-            while(true){
-                if(nowTime.plusMinutes(time).isAfter(endTime)){ // 퇴실 시간이 영업 마감 시간 이후인 경우
-                    break;
+                LocalDateTime availableDate = LocalDateTime.of(selectedDate,startTime); // 8월 5일 9시
+                availableTime = availableDate.toLocalTime();
+
+                while(true){
+                    if(!availableTime.isBefore(LocalTime.MIDNIGHT) && availableTime.isBefore(endTime)) { // 이용 시작시간이 자정을 넘어가는 경우
+                        break;
+                    }
+                    if(availableDate.plusMinutes(time).isAfter(LocalDateTime.of(selectedDate,endTime).plusDays(1))){ // 이용 끝나는 시간이 마감 시간을 넘어간 경우
+                        break;
+
+                    }
+                    dates.add(availableTime);
+                    availableDate = availableDate.plusMinutes(30);
+                    availableTime = availableDate.toLocalTime();
                 }
-                dates.add(nowTime);
-                nowTime=nowTime.plusMinutes(30);
+            }else{
+                LocalTime availableTime = startTime;
+                while (true){
+                    if(availableTime.plusMinutes(time).isAfter(endTime)){// 퇴실 시간이 영업 마감 시간 이후인 경우
+                        break;
+                    }
+                    dates.add(availableTime);
+                    availableTime = availableTime.plusMinutes(30);
+                }
             }
-
         }
 
         //선택한 시간 안에 예약된 스터디룸이 없을 때만 가능
