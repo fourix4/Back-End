@@ -11,16 +11,19 @@ import com.example.CatchStudy.global.oauth.GoogleProfile;
 import com.example.CatchStudy.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginService {
@@ -36,6 +39,7 @@ public class LoginService {
     private final JwtUtil jwtUtil;
     private final UsersRepository usersRepository;
 
+    @Transactional
     public String googleLogin(OauthCodeRequestDto oauthCodeRequestDto) {
         RestTemplate rt = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
@@ -59,11 +63,12 @@ public class LoginService {
                 googleTokenRequest,
                 String.class
         );
-
+        log.info("[getGoogleProfile] code로 인증을 받은뒤 응답받은 token 값 : {}",response);
         // token에서 값 추출
         try {
             oAuthToken = objectMapper.readValue(response.getBody(), GoogleOAuthToken.class);
         } catch (Exception e) {
+            log.info("token error : " + e.getMessage());
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 
@@ -78,10 +83,11 @@ public class LoginService {
                 googleProfileRequest,
                 String.class
         );
-
+        log.info("[google] 구글 프로필 response :{}",googleProfileResponse);
         try {
             googleProfile = objectMapper.readValue(googleProfileResponse.getBody(), GoogleProfile.class);
         } catch (Exception e) {
+            log.info("profile error : " + e.getMessage());
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 

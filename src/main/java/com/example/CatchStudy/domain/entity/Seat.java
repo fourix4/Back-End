@@ -35,6 +35,7 @@ public class Seat {
         this.seatNumber = seatNumber;
         this.isAvailable = false;
         this.studyCafe = studyCafe;
+        this.version = 1L;
     }
 
     public void checkOutSeat(Boolean isAvailable) {
