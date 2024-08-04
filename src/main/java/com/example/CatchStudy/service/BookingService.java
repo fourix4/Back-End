@@ -13,6 +13,7 @@ import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,10 @@ public class BookingService {
 
     private final QuartzSchedulerService quartzSchedulerService;
 
+    private final RedissonClient redissonClient;
+
+    private final RedissonService redissonService;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long saveSeatBooking(SeatBookingDto dto,Users user,StudyCafe studyCafe){
         Payment payment = null;
@@ -72,29 +77,16 @@ public class BookingService {
         return payment.getPaymentId();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public Long saveRoomBooking(SeatBookingDto dto,Users user){
-        Room room = roomRepository.findByRoomIdLock(dto.getRoomId()).orElseThrow(() -> new CatchStudyException(ErrorCode.ROOM_NOT_FOUND));
         Payment payment = null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime localDateTime = LocalDateTime.parse(dto.getStartTime(), formatter);
-
-        if (bookedRoomInfoRepository.existsBookedRoom(room.getRoomId(), localDateTime, localDateTime.plusMinutes(dto.getTime())) != 0) { //해당 날짜 시간에 예약되어있는 룸이 있는지 학인
+        if(localDateTime.isBefore(LocalDateTime.now())){ // 현재 날짜 이전을 선택하면
             throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
         }
+        payment = redissonService.saveRoomBooking(dto,dto.getRoomId(),user);
 
-        //예약 시작 시간 / 퇴실 시간 저장
-        LocalDateTime bookingStartTime = localDateTime;
-        Integer time = dto.getTime();
-        LocalTime localTime = LocalTime.of(bookingStartTime.getHour(), bookingStartTime.getMinute());
-        LocalTime endLocalTime = localTime.plusMinutes(time);
-        LocalDate localDate = LocalDate.of(bookingStartTime.getYear(), bookingStartTime.getMonth(), bookingStartTime.getDayOfMonth());
-        LocalDateTime bookedEndTime = bookingStartTime.plusMinutes(time);
-
-        BookedRoomInfo bookedRoomInfo = BookedRoomInfo.of(room, localTime, endLocalTime, localDate, bookingStartTime, bookedEndTime);
-        bookedRoomInfoRepository.save(bookedRoomInfo);
-        Booking booking = bookingRepository.save(Booking.of(user, time, room.getStudyCafe(), bookedRoomInfo, bookingStartTime, bookedEndTime));
-        payment = paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
         return payment.getPaymentId();
     }
 
@@ -273,17 +265,17 @@ public class BookingService {
 
     @Transactional
     public void deleteBooking(Long paymentId) {
-        Payment payment = paymentRepository.findByPaymentId(paymentId).orElseThrow(
-                ()->new CatchStudyException(ErrorCode.PAYMENT_NOT_FOUND)
-        );
-        if(payment.getBooking().getSeat()==null){ //스터디룸
-            bookedRoomInfoRepository.delete(payment.getBooking().getBookedRoomInfo());
-        }else{
-            payment.getBooking().getSeat().updateSeatStatus(true);
+        Payment payment = paymentRepository.findByPaymentId(paymentId).orElse(null);
+        if(payment!=null){
+            if(payment.getBooking().getSeat()==null){ //스터디룸
+                bookedRoomInfoRepository.delete(payment.getBooking().getBookedRoomInfo());
+            }else{
+                payment.getBooking().getSeat().updateSeatStatus(true);
+            }
+            paymentRepository.deleteByPaymentId(paymentId);
         }
-
-        paymentRepository.deleteByPaymentId(paymentId);
     }
+
     public void checkAvailableSeatsTime(StudyCafe studyCafe, Integer time){
         LocalTime now = LocalDateTime.now().toLocalTime();
         LocalTime openingTime = studyCafe.getOpeningHours();
