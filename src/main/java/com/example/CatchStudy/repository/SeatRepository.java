@@ -31,4 +31,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Query("SELECT COUNT(s) FROM Seat s WHERE s.studyCafe.cafeId = :cafeId AND s.isAvailable = true")
     int countAvailableSeatsByStudyCafeId(@Param("cafeId") Long cafeId);
 
+    @Query("SELECT COUNT(s) FROM Seat s WHERE s.studyCafe.cafeId = :cafeId AND s.isAvailable = false")
+    int countUsingSeatsByStudyCafeId(@Param("cafeId") Long cafeId);
 }
