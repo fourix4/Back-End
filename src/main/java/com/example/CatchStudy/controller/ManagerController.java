@@ -44,7 +44,13 @@ public class ManagerController {
     }
 
     @GetMapping("/manager")
-    public Response getStudyCafe() {
-        return Response.success(Result.toResponseDto(managerService.getStudyCafe()));
+    public Response getStudyCafeList() {
+        return Response.success(Result.toResponseDto(managerService.getStudyCafeList()));
+    }
+
+
+    @GetMapping("/manager/{cafe_id}")
+    public Response getStudyCafe(@PathVariable("cafe_id") long cafeId ) {
+        return Response.success(Result.toResponseDto(managerService.getStudyCafe(cafeId)));
     }
 }

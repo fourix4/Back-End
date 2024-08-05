@@ -3,6 +3,7 @@ package com.example.CatchStudy.service;
 import com.example.CatchStudy.domain.dto.request.RoomsRequestDto;
 import com.example.CatchStudy.domain.dto.request.ManagerRequestDto;
 import com.example.CatchStudy.domain.dto.request.UsageFeeRequestDto;
+import com.example.CatchStudy.domain.dto.response.ManagerListResponseDto;
 import com.example.CatchStudy.domain.dto.response.ManagerResponseDto;
 import com.example.CatchStudy.domain.dto.response.RoomInfoResponseDto;
 import com.example.CatchStudy.domain.dto.response.UsageFeeResponseDto;
@@ -16,9 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class ManagerService {
     private final SeatService seatService;
     private final CafeImageService cafeImageService;
     private final CafeImageRepository cafeImageRepository;
+    private final PaymentRepository paymentRepository;
 
     @Transactional
     public void saveStudyCafe(ManagerRequestDto managerRequestDto, MultipartFile thumbnail, List<MultipartFile> multipleImages) {
@@ -70,6 +76,7 @@ public class ManagerService {
 
     @Transactional
     public void updateStudyCafe(ManagerRequestDto managerRequestDto, MultipartFile thumbnail, List<MultipartFile> multipleImages) {
+
         long userId = usersService.getCurrentUserId();
         LocalTime openingHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
         LocalTime closedHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
@@ -98,16 +105,41 @@ public class ManagerService {
         cafeImageService.saveCafeImages(thumbnail, multipleImages, studyCafe);
     }
 
-    public ManagerResponseDto getStudyCafe() {
-        long userId = usersService.getCurrentUserId();
-        StudyCafe studyCafe = studyCafeRepository.findByUser_UserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
+    public ManagerResponseDto getStudyCafe(long cafeId) {
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        StudyCafe studyCafe = studyCafeRepository.findByCafeId(cafeId).orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
+        int usingSeats = seatService.getUsingSeatCount(cafeId);
         int seats = seatService.getSeatsCount(studyCafe.getCafeId());
         RoomInfoResponseDto roomInfoResponseDto = roomService.getRoomInfoResponseDto(studyCafe.getCafeId());
         List<UsageFeeResponseDto> usageFeeResponseDtoList = usageFeeService.getUsageFeeResponseDto(studyCafe.getCafeId());
         String thumbnailUrl = cafeImageRepository.findThumbnailUrlByStudyCafeId(studyCafe.getCafeId());
         String seatingChartUrl = cafeImageRepository.findSeatingChartUrlByStudyCafeId(studyCafe.getCafeId());
         List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(studyCafe.getCafeId());
+        int sales = Optional.ofNullable(paymentRepository.findTotalSalesByCafeIdAndDate(cafeId, startOfDay, endOfDay)).orElse(0);
 
-        return new ManagerResponseDto(studyCafe, seats, roomInfoResponseDto, usageFeeResponseDtoList, thumbnailUrl, cafeImageUrls, seatingChartUrl);
+        return new ManagerResponseDto(studyCafe, usingSeats, seats, roomInfoResponseDto, usageFeeResponseDtoList, thumbnailUrl, cafeImageUrls, seatingChartUrl, sales);
+    }
+
+    public List<ManagerListResponseDto> getStudyCafeList() {
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        long userId = usersService.getCurrentUserId();
+        List<ManagerListResponseDto> dtoList = new ArrayList<>();
+        List<StudyCafe> studyCafeList = studyCafeRepository.findAllByUser_UserId(userId);
+
+        for(StudyCafe cafe : studyCafeList) {
+            int usingSeats = seatService.getUsingSeatCount(cafe.getCafeId());
+            int seats = seatService.getSeatsCount(cafe.getCafeId());
+            int sales = Optional.ofNullable(paymentRepository.findTotalSalesByCafeIdAndDate(cafe.getCafeId(), startOfDay, endOfDay)).orElse(0);
+            dtoList.add(new ManagerListResponseDto(cafe, usingSeats, seats, sales));
+        }
+
+        return dtoList;
     }
 }
