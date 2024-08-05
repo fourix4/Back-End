@@ -1,6 +1,7 @@
 package com.example.CatchStudy.controller;
 
 import com.example.CatchStudy.domain.dto.request.OauthCodeRequestDto;
+import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
 import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.domain.dto.response.Result;
 import com.example.CatchStudy.service.LoginService;
@@ -18,6 +19,6 @@ public class LoginController {
     private final LoginService loginService;
     @PostMapping("/login/google")
     public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto) {
-        return Response.success(Result.toResponseDto(loginService.googleLogin(oauthCodeRequestDto)));
+        return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto))));
     }
 }
