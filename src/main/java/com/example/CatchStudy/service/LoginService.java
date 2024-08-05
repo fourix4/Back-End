@@ -68,12 +68,10 @@ public class LoginService {
 
         // google에서 token 받기
         ResponseEntity<String> response = rt.postForEntity("https://oauth2.googleapis.com/token", params, String.class);
-        log.info("[getGoogleProfile] code로 인증을 받은뒤 응답받은 token 값 : {}",response);
         // token에서 값 추출
         try {
             oAuthToken = objectMapper.readValue(response.getBody(), GoogleOAuthToken.class);
         } catch (Exception e) {
-            log.info("token error : " + e.getMessage());
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 
@@ -96,11 +94,10 @@ public class LoginService {
                 googleProfileRequest,
                 String.class
         );
-        log.info("[google] 구글 프로필 response :{}",googleProfileResponse);
+
         try {
             googleProfile = objectMapper.readValue(googleProfileResponse.getBody(), GoogleProfile.class);
         } catch (Exception e) {
-            log.info("profile error : " + e.getMessage());
             throw new CatchStudyException(ErrorCode.INVALID_OAUTH_TOKEN_ERROR);
         }
 
