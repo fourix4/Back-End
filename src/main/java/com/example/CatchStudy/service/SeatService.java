@@ -28,4 +28,8 @@ public class SeatService {
     public int getSeatsCount(long cafeId) {
         return seatRepository.countSeatByStudyCafeId(cafeId);
     }
+
+    public int getUsingSeatCount(long cafeId) {
+        return seatRepository.countUsingSeatsByStudyCafeId(cafeId);
+    }
 }
