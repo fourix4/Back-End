@@ -36,4 +36,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     )
     Page<Payment> findBookingPaymentTimeBetweenFetchJoin(@Param("userId") Long userId, @Param("startTime") LocalDateTime startTime,
                                                          @Param("endTime") LocalDateTime endTime, Pageable pageable);
+
+    @Query("SELECT SUM(p.amount) FROM Payment p " +
+            "WHERE p.booking.studyCafe.cafeId = :cafeId AND p.paymentTime >= :startOfDay " +
+            "AND p.paymentTime < :endOfDay AND p.paymentStatus = 'APPROVE'")
+    Integer findTotalSalesByCafeIdAndDate(
+            @Param("cafeId") Long cafeId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay);
 }

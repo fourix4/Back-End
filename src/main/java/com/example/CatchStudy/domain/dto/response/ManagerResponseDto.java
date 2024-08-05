@@ -15,6 +15,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ManagerResponseDto {
 
+    private long cafeId;
     private String cafeName;
     private AddressResponseDto address;
     @JsonFormat(pattern = "HH:mm")
@@ -23,26 +24,32 @@ public class ManagerResponseDto {
     private LocalTime closedHours;
     private String closedDay;
     private String cafePhone;
+    private Integer usingSeats;
     private Integer seats;
     private RoomInfoResponseDto roomInfo;
     private List<UsageFeeResponseDto> usageFee;
     private String titleImage;
     private List<String> multipleImages;
     private String seatChartImage;
+    private Integer sales;
 
-    public ManagerResponseDto(StudyCafe studyCafe, int seats, RoomInfoResponseDto roomInfo, List<UsageFeeResponseDto> usageFee,
-                              String titleImage, List<String> multipleImages, String seatChartImage) {
+    public ManagerResponseDto(StudyCafe studyCafe, int usingSeats, int seats, RoomInfoResponseDto roomInfo, List<UsageFeeResponseDto> usageFee,
+                              String titleImage, List<String> multipleImages, String seatChartImage, int sales) {
+
+        this.cafeId = studyCafe.getCafeId();
         this.cafeName = studyCafe.getCafeName();
         this.address = new AddressResponseDto(studyCafe);
         this.openingHours = studyCafe.getOpeningHours();
         this.closedHours = studyCafe.getClosedHours();
         this.closedDay = studyCafe.getClosedDay();
         this.cafePhone = studyCafe.getCafePhone();
+        this.usingSeats = usingSeats;
         this.seats = seats;
         this.roomInfo = roomInfo;
         this.usageFee = usageFee;
         this.titleImage = titleImage;
         this.multipleImages= multipleImages;
         this.seatChartImage = seatChartImage;
+        this.sales = sales;
     }
 }
