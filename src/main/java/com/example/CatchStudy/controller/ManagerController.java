@@ -34,12 +34,13 @@ public class ManagerController {
         return Response.success();
     }
 
-    @PatchMapping("/manager")
-    public Response updateStudyCafe(@RequestPart(value = "data") ManagerRequestDto managerRequestDto,
+    @PatchMapping("/manager/{cafe_id}")
+    public Response updateStudyCafe(@PathVariable("cafe_id") long cafeId,
+                                    @RequestPart(value = "data") ManagerRequestDto managerRequestDto,
                                     @RequestPart(value = "title_image", required = false) MultipartFile titleImage,
                                     @RequestPart(value = "multiple_images", required = false) List<MultipartFile> multipleImages) {
 
-        managerService.updateStudyCafe(managerRequestDto, titleImage, multipleImages);
+        managerService.updateStudyCafe(cafeId, managerRequestDto, titleImage, multipleImages);
         return Response.success();
     }
 
