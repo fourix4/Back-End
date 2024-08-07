@@ -15,7 +15,7 @@ public @interface DistributeLock {
 
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
-    long waitTime() default 6L; //락 획득 대기 시간
+    long waitTime() default 0L; //락 획득 대기 시간
 
     long leaseTime() default 5L; //락 임대 시간
 }
