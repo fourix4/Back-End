@@ -25,13 +25,15 @@ public class CafeImageService {
     private final CafeImageRepository cafeImageRepository;
     private final S3Service s3Service;
 
-    public void saveCafeImages(MultipartFile thumbnail, List<MultipartFile> multipleImages, StudyCafe studyCafe) {
+    public void saveCafeThumbnail(MultipartFile thumbnail, StudyCafe studyCafe) {
         if(thumbnail != null) {
             String thumbnailUrl = s3Service.upload(thumbnail);
             CafeImage cafeThumbnailImage = new CafeImage(ImageType.thumbnail, thumbnailUrl, studyCafe);
             cafeImageRepository.save(cafeThumbnailImage);
         }
+    }
 
+    public void saveCafeImages(List<MultipartFile> multipleImages, StudyCafe studyCafe) {
         if(multipleImages != null) {
             for(MultipartFile imageFile : multipleImages) {
                 String imageFileUrl = s3Service.upload(imageFile);
@@ -41,21 +43,13 @@ public class CafeImageService {
         }
     }
 
-    public void deleteCafeImages(StudyCafe studyCafe) {
-        List<CafeImage> images = cafeImageRepository.findAllByStudyCafe_CafeId(studyCafe.getCafeId());
-        String thumbnailUrl = "";
-        List<String> multipleImageUrls = new ArrayList<>();
-
-        for(CafeImage image : images) {
-            switch (image.getImageType()) {
-                case thumbnail -> thumbnailUrl = image.getCafeImage();
-                case cafeImage ->  multipleImageUrls.add(image.getCafeImage());
-            }
-        }
-
-        if(thumbnailUrl != null) s3Service.deleteImageFromS3(thumbnailUrl);
-        if(!multipleImageUrls.isEmpty()) {
-            for(String url : multipleImageUrls) s3Service.deleteImageFromS3(url);
+    public void deleteCafeImages(long cafeId, ImageType type) {
+        if(type.equals(ImageType.thumbnail)) {
+            String thumbnailUrl = cafeImageRepository.findThumbnailUrlByStudyCafeId(cafeId);
+            s3Service.deleteImageFromS3(thumbnailUrl);
+        } else if(type.equals(ImageType.cafeImage)){
+            List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(cafeId);
+            for(String url : cafeImageUrls) s3Service.deleteImageFromS3(url);
         }
     }
 }
