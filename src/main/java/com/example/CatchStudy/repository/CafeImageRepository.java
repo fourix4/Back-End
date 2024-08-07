@@ -22,4 +22,12 @@ public interface CafeImageRepository extends JpaRepository<CafeImage, Long> {
 
     @Query("SELECT ci.cafeImage FROM CafeImage ci WHERE ci.studyCafe.cafeId = :cafeId AND ci.imageType = 'thumbnail'")
     String findThumbnailUrlByStudyCafeId(@Param("cafeId") Long cafeId);
+
+    @Query("DELETE FROM CafeImage ci where ci.studyCafe.cafeId = :cafeId and  ci.imageType = 'thumbnail'")
+    void deleteCafeThumbnailByCafeId(@Param("cafeId") Long cafeId);
+
+    @Query("DELETE FROM CafeImage ci where ci.studyCafe.cafeId = :cafeId and  ci.imageType = 'cafeImage'")
+    void deleteCafeImagesByCafeId(@Param("cafeId") Long cafeId);
+
+
 }

@@ -47,9 +47,13 @@ public class CafeImageService {
         if(type.equals(ImageType.thumbnail)) {
             String thumbnailUrl = cafeImageRepository.findThumbnailUrlByStudyCafeId(cafeId);
             s3Service.deleteImageFromS3(thumbnailUrl);
+            cafeImageRepository.deleteCafeThumbnailByCafeId(cafeId);
         } else if(type.equals(ImageType.cafeImage)){
             List<String> cafeImageUrls = cafeImageRepository.findCafeImagesByStudyCafeId(cafeId);
-            for(String url : cafeImageUrls) s3Service.deleteImageFromS3(url);
+            cafeImageRepository.deleteCafeImagesByCafeId(cafeId);
+            for(String url : cafeImageUrls) {
+                s3Service.deleteImageFromS3(url);
+            }
         }
     }
 }
