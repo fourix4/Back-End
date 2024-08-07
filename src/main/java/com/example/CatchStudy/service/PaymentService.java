@@ -116,6 +116,7 @@ public class PaymentService {
             try {
                 quartzSchedulerService.scheduleBookingSeatStatusCheck(booking.getBookingId(), payment); //30 분 후 좌석 상태 확인 작업 스케줄;
             } catch (SchedulerException e) {
+                log.error(e.getMessage());
                 throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
             }
 

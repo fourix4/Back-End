@@ -56,24 +56,12 @@ public class BookingService {
 
     private final RedissonService redissonService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public Long saveSeatBooking(SeatBookingDto dto,Users user,StudyCafe studyCafe){
         Payment payment = null;
+        checkAvailableSeatsTime(studyCafe,dto.getTime());
+        payment = redissonService.saveSeatBooking(dto,dto.getSeatId(),user,studyCafe);
 
-        checkAvailableSeatsTime(studyCafe, dto.getTime());
-
-        try {
-            Seat seat = seatRepository.findBySeatIdOptimisticLock(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
-            if(!seat.getIsAvailable()){
-                throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
-            }
-            seat.updateSeatStatus(false);
-            Booking booking = bookingRepository.save(Booking.of(dto.getTime(), user, studyCafe, seat));
-            payment =paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
-
-        }catch (ObjectOptimisticLockingFailureException e){
-            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
-        }
         return payment.getPaymentId();
     }
 
