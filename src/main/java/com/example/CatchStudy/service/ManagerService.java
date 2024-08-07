@@ -8,6 +8,7 @@ import com.example.CatchStudy.domain.dto.response.ManagerResponseDto;
 import com.example.CatchStudy.domain.dto.response.RoomInfoResponseDto;
 import com.example.CatchStudy.domain.dto.response.UsageFeeResponseDto;
 import com.example.CatchStudy.domain.entity.*;
+import com.example.CatchStudy.global.enums.ImageType;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.repository.*;
@@ -71,16 +72,17 @@ public class ManagerService {
         }
 
         // 이미지 저장
-        cafeImageService.saveCafeImages(thumbnail, multipleImages, savedStudyCafe);
+        cafeImageService.saveCafeThumbnail(thumbnail, studyCafe);
+        cafeImageService.saveCafeImages(multipleImages, savedStudyCafe);
     }
 
     @Transactional
-    public void updateStudyCafe(ManagerRequestDto managerRequestDto, MultipartFile thumbnail, List<MultipartFile> multipleImages) {
+    public void updateStudyCafe(long cafeId, ManagerRequestDto managerRequestDto,
+                                MultipartFile thumbnail, List<MultipartFile> multipleImages) {
 
-        long userId = usersService.getCurrentUserId();
         LocalTime openingHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
         LocalTime closedHours = LocalTime.parse(managerRequestDto.getOpeningHours(), DateTimeFormatter.ofPattern("HH:mm"));
-        StudyCafe studyCafe = studyCafeRepository.findByUser_UserId(userId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
+        StudyCafe studyCafe = studyCafeRepository.findByCafeId(cafeId).orElseThrow(() -> new CatchStudyException(ErrorCode.USER_NOT_FOUND));
         studyCafe.update(managerRequestDto, openingHours, closedHours);
 
         usageFeeService.deleteUsageFee(studyCafe.getCafeId());
@@ -89,20 +91,14 @@ public class ManagerService {
             usageFeeService.saveUsageFee(usageFeeRequestDto, studyCafe);
         }
 
-        roomService.deleteRoom(studyCafe.getCafeId());
-        List<RoomsRequestDto> rooms = managerRequestDto.getRoomInfo().getRooms();
-        long cancelAvailableTime = managerRequestDto.getRoomInfo().getCancelAvailableTime();
-        for(RoomsRequestDto roomsRequestDto : rooms) {
-            roomService.saveRoom(roomsRequestDto, studyCafe, cancelAvailableTime);
+        if(thumbnail != null) {
+            cafeImageService.deleteCafeImages(cafeId, ImageType.thumbnail);
+            cafeImageService.saveCafeThumbnail(thumbnail, studyCafe);
         }
-
-        seatService.deleteSeat(studyCafe.getCafeId());
-        for(int i = 1; i <= managerRequestDto.getSeats(); i++) {
-            seatService.saveSeat(Integer.toString(i), studyCafe);
+        if(multipleImages != null) {
+            cafeImageService.deleteCafeImages(cafeId, ImageType.cafeImage);
+            cafeImageService.saveCafeImages(multipleImages, studyCafe);
         }
-
-        cafeImageService.deleteCafeImages(studyCafe);
-        cafeImageService.saveCafeImages(thumbnail, multipleImages, studyCafe);
     }
 
     public ManagerResponseDto getStudyCafe(long cafeId) {
