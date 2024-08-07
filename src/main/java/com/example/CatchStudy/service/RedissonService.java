@@ -6,10 +6,7 @@ import com.example.CatchStudy.global.enums.PaymentStatus;
 import com.example.CatchStudy.global.exception.CatchStudyException;
 import com.example.CatchStudy.global.exception.ErrorCode;
 import com.example.CatchStudy.global.redisson.DistributeLock;
-import com.example.CatchStudy.repository.BookedRoomInfoRepository;
-import com.example.CatchStudy.repository.BookingRepository;
-import com.example.CatchStudy.repository.PaymentRepository;
-import com.example.CatchStudy.repository.RoomRepository;
+import com.example.CatchStudy.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -28,6 +25,8 @@ public class RedissonService {
     private final BookedRoomInfoRepository bookedRoomInfoRepository;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+    private final SeatRepository seatRepository;
+
 
     @DistributeLock(lockName = "roomLock",identifier = "roomId")
     public Payment saveRoomBooking(SeatBookingDto dto, Long roomId, Users user){
@@ -55,6 +54,17 @@ public class RedissonService {
         );
         bookedRoomInfoRepository.save(bookedRoomInfo);
         Booking booking = bookingRepository.save(Booking.of(user,time,room.getStudyCafe(),bookedRoomInfo,bookingStartTime,bookedEndTime));
+        return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
+    }
+
+    @DistributeLock(lockName = "seatLock",identifier = "seatId")
+    public Payment saveSeatBooking(SeatBookingDto dto, Long seatId, Users user,StudyCafe studyCafe){
+        Seat seat = seatRepository.findBySeatId(dto.getSeatId()).orElseThrow(() -> new CatchStudyException(ErrorCode.SEAT_NOT_FOUND));
+        if(!seat.getIsAvailable()){
+            throw new CatchStudyException(ErrorCode.BOOKING_NOT_AVAILABLE);
+        }
+        seat.updateSeatStatus(false);
+        Booking booking = bookingRepository.save(Booking.of(dto.getTime(), user, studyCafe, seat));
         return paymentRepository.save(Payment.of(dto.getPaymentType(), booking, PaymentStatus.ready));
     }
 }
