@@ -5,6 +5,7 @@ import com.example.CatchStudy.domain.dto.response.AccessTokenResponseDto;
 import com.example.CatchStudy.domain.dto.response.Response;
 import com.example.CatchStudy.domain.dto.response.Result;
 import com.example.CatchStudy.service.LoginService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,13 @@ public class LoginController {
 
     private final LoginService loginService;
     @PostMapping("/login/google")
-    public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto) {
-        return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto))));
+    public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto, HttpServletRequest request) {
+        String host = request.getHeader("host");
+        String server = "";
+
+        if(host.contains("localhost")) server = "local";
+        else if(host.contains("catch-study.kro.kr")) server = "prod";
+
+        return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto, server))));
     }
 }
