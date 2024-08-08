@@ -20,12 +20,7 @@ public class LoginController {
     private final LoginService loginService;
     @PostMapping("/login/google")
     public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto, HttpServletRequest request) {
-        String host = request.getHeader("host");
-        String server = "";
-        System.out.println("--------- host : " + host);
-        if(host.contains("localhost")) server = "local";
-        else if(host.contains("catch-study.kro.kr")) server = "prod";
 
-        return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto, server))));
+        return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto))));
     }
 }
