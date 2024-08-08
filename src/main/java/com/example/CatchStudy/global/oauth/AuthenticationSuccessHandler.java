@@ -35,8 +35,6 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         Users users = usersRepository.findByEmail(email);
         JwtToken jwtToken = jwtUtil.generatedToken(email, users.getAuthor());
 
-        String host = String.valueOf(request.getRequestURL());
-        System.out.println("------------ requestUrl : " + host);
         String redirectUrl = "https://catch-study.kro.kr/oauthkakao?accessToken=" + jwtToken.getAccessToken();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
