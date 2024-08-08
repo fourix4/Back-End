@@ -27,7 +27,7 @@ public class Message {
     private String MessageImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "char_room_id")
+    @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
