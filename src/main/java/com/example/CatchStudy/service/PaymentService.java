@@ -66,9 +66,9 @@ public class PaymentService {
         parameters.put("quantity", "1");                                                  // 상품 수량
         parameters.put("total_amount", String.valueOf(dto.getAmount()));                  // 상품 총액
         parameters.put("tax_free_amount", "0");
-        parameters.put("approval_url", "http://3.39.182.9:8080/api/payment/success" + "/" + user.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
-        parameters.put("cancel_url", "http://3.39.182.9:8080/api/payment/cancel/" + paymentId); // 취소 시 redirect url
-        parameters.put("fail_url", "http://3.39.182.9:8080/api/payment/fail/" + paymentId); // 실패 시 redirect url
+        parameters.put("approval_url", "https://catch-study.store/api/payment/success" + "/" + user.getUserId() + "/" + paymentId); // 성공 시 redirect url+{userId}+{seatId}
+        parameters.put("cancel_url", "https://catch-study.store/api/payment/cancel/" + paymentId); // 취소 시 redirect url
+        parameters.put("fail_url", "https://catch-study.store/api/payment/fail/" + paymentId); // 실패 시 redirect url
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
 
