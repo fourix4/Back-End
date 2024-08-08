@@ -35,11 +35,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         Users users = usersRepository.findByEmail(email);
         JwtToken jwtToken = jwtUtil.generatedToken(email, users.getAuthor());
 
-        // 요청의 호스트 정보 가져오기
-        String host = request.getHeader("Host");
-        // 프로토콜 정보 가져오기 (http 또는 https)
-        String scheme = request.getScheme();
-        String redirectUrl = scheme + "://" + host + "/oauthkakao?accessToken=" + jwtToken.getAccessToken();
+        String redirectUrl = "https://catch-study.kro.kr/oauthkakao?accessToken=" + jwtToken.getAccessToken();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
