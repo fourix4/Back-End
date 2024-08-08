@@ -22,7 +22,7 @@ public class LoginController {
     public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto, HttpServletRequest request) {
         String host = request.getHeader("host");
         String server = "";
-
+        System.out.println("--------- host : " + host);
         if(host.contains("localhost")) server = "local";
         else if(host.contains("catch-study.kro.kr")) server = "prod";
 
