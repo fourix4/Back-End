@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         List<String> excludedPaths = Arrays.asList(
                 "/api/users/reissuance",
-                "/api/user/login/google",
+                "/api/users/login/google",
                 "/api/studycafes/search"
         );
 
