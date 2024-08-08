@@ -42,8 +42,8 @@ public class LoginService {
     private final UsersRepository usersRepository;
 
     @Transactional
-    public String googleLogin(OauthCodeRequestDto oauthCodeRequestDto) {
-        GoogleOAuthToken oAuthToken = getAccessToken(oauthCodeRequestDto.getCode());
+    public String googleLogin(OauthCodeRequestDto oauthCodeRequestDto, String server) {
+        GoogleOAuthToken oAuthToken = getAccessToken(oauthCodeRequestDto.getCode(), server);
         GoogleProfile googleProfile = getGoogleProfile(oAuthToken);
 
         Users user = usersRepository.findByEmail(googleProfile.getEmail());
@@ -53,7 +53,7 @@ public class LoginService {
         return jwtToken.getAccessToken();
     }
 
-    public GoogleOAuthToken getAccessToken(String code) {
+    public GoogleOAuthToken getAccessToken(String code, String server) {
         RestTemplate rt = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
         GoogleOAuthToken oAuthToken = null;
@@ -64,7 +64,8 @@ public class LoginService {
         params.put("client_id", clientId);
         params.put("client_secret", clientSecret);
         params.put("code", code);
-        params.put("redirect_uri", redirectUri);
+        if(server.equals("local")) params.put("redirect_uri", "http://localhost:3000/oauthgoogle");
+        else params.put("redirect_uri", redirectUri);
 
         // google에서 token 받기
         ResponseEntity<String> response = rt.postForEntity("https://oauth2.googleapis.com/token", params, String.class);
