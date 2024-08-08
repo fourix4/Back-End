@@ -58,7 +58,7 @@ public class LoginService {
         HttpHeaders tokenHeaders = new HttpHeaders();
         GoogleOAuthToken oAuthToken = null;
         ObjectMapper objectMapper = new ObjectMapper();
-
+        System.out.println("------------server : -------------" + server);
         Map<String, String> params = new HashMap<>();
         params.put("grant_type", grantType);
         params.put("client_id", clientId);
