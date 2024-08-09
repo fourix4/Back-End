@@ -64,9 +64,13 @@ public class ChatService {
         if(user.getAuthor() == Author.roleUser) {
             chatRoomList = chatRoomRepository.findByUserId(userId);
         } else if(user.getAuthor() == Author.roleManager) {
-            StudyCafe studyCafe = studyCafeRepository.findByUser_UserId(userId).
-                    orElseThrow(() -> new CatchStudyException(ErrorCode.STUDYCAFE_NOT_FOUND));
-            chatRoomList = chatRoomRepository.findByCafeId(studyCafe.getCafeId());
+            List<StudyCafe> studyCafelist = studyCafeRepository.findByUser_UserId(userId);
+
+            for(StudyCafe studyCafe : studyCafelist) {
+                List<ChatRoom> chatRooms = chatRoomRepository.findByCafeId(studyCafe.getCafeId());
+
+                chatRoomList.addAll(chatRooms);
+            }
         }
 
         for(ChatRoom chatRoom : chatRoomList) {

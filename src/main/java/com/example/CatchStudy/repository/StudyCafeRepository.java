@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface StudyCafeRepository extends JpaRepository<StudyCafe, Long> {
 
     Optional<StudyCafe> findByCafeId(Long cafeId);
-    Optional<StudyCafe> findByUser_UserId(long userId);
+    List<StudyCafe> findByUser_UserId(long userId);
 
     @Query("SELECT s FROM StudyCafe s WHERE :city IS NULL OR s.city = :city AND " +
             ":country IS NULL OR s.country = :country AND :town IS NULL OR s.town = :town")
