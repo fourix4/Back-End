@@ -16,7 +16,7 @@ public class AvailableBookingRoomDto {
     private String status;
     private Integer amount;
     private String address;
-    private String roomName;
+    private String room_name;
     private String code;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime payment_time;
