@@ -65,7 +65,7 @@ public class QuartzSchedulerService {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
-    public void scheduleCheckOutSeatBooking(Long bookingId, LocalDateTime checkOutTime) throws SchedulerException { //스터디룸 퇴실 시간이 되면 booking 테이블 '이용 완료' 변경
+    public void scheduleCheckOutSeatBooking(Long bookingId, LocalDateTime checkOutTime) throws SchedulerException { //좌석 퇴실 시간이 되면 booking 테이블 '이용 완료' 변경
 
         JobDetail jobDetail = JobBuilder.newJob(CheckOutSeatBookingJob.class)
                 .withIdentity("checkOutSeatBooking_" + bookingId, "checkOutSeatBookingGroup")
@@ -78,5 +78,13 @@ public class QuartzSchedulerService {
                 .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
+    }
+
+    public void cancelCheckBeforeEnteringSeatJob(Long bookingId) throws SchedulerException {
+        scheduler.deleteJob(new JobKey("cancelBeforeEnteringSeatJob_"+bookingId,"cancelBeforeEnteringSeatGroup"));
+    }
+
+    public void cancelCheckCheckOutSeatBooking(Long bookingId) throws SchedulerException {
+        scheduler.deleteJob(new JobKey("checkOutSeatBooking_" + bookingId,"checkOutSeatBookingGroup"));
     }
 }
