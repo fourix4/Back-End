@@ -101,15 +101,15 @@ https://catch-study.kro.kr/
 
 - 관리자 1:1 문의 : ‘관리자 1:1 문의’ 버튼을 누르면 해당 스터디카페 관리자와의 채팅방이 개설된다.
 
-![image](https://github.com/user-attachments/assets/2d27887b-6d49-4b81-bea0-28231267624e)
+ <img src="https://github.com/user-attachments/assets/2d27887b-6d49-4b81-bea0-28231267624e" width="390px"/>
 
 - 채팅 : 해당 스터디카페의 관리자에게 실시간으로 문의를 남길 수 있다.
 
-![image](https://github.com/user-attachments/assets/76898536-f94f-48a6-8a52-13f413310f44)
+<img src="https://github.com/user-attachments/assets/76898536-f94f-48a6-8a52-13f413310f44" width="390px"/>
 
 - 예약 내역 조회 : 처음에 최근 30개 예약 내역을 표시하고 이후 날짜를 선택하면 해당 기간 안의 예약 내역을 표시한다.
 
-![image](https://github.com/user-attachments/assets/7c4c2c8c-c8b9-4ab2-a73e-b03a9754da08)
+<img src="https://github.com/user-attachments/assets/7c4c2c8c-c8b9-4ab2-a73e-b03a9754da08" width="390px"/>
 
 ## 스터디카페 관리자
 
@@ -131,4 +131,4 @@ https://catch-study.kro.kr/
 
 - 채팅 : 스터디카페를 이용 중인 고객에게 실시간으로 문의를 답변할 수 있다.
 
-![image](https://github.com/user-attachments/assets/21de07eb-dd2e-4591-a44b-b3ced37ae690)
+<img src="https://github.com/user-attachments/assets/21de07eb-dd2e-4591-a44b-b3ced37ae690" width="390px"/>
