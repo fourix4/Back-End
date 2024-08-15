@@ -132,3 +132,5 @@ https://catch-study.kro.kr/
 - 채팅 : 스터디카페를 이용 중인 고객에게 실시간으로 문의를 답변할 수 있다.
 
 <img src="https://github.com/user-attachments/assets/21de07eb-dd2e-4591-a44b-b3ced37ae690" width="390px"/>
+<img src="https://github.com/user-attachments/assets/65e08cfb-d07e-4d4c-bfd7-2cd3755f8efc" width="390px"/>
+
