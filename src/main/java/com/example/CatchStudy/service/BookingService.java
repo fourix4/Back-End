@@ -234,9 +234,11 @@ public class BookingService {
         booking.checkInSeatBooking(nowTime,booking.getTime());
 
         try {
+            quartzSchedulerService.cancelCheckBeforeEnteringSeatJob(booking.getBookingId());
             quartzSchedulerService.scheduleCheckOutSeatBooking(booking.getBookingId(),nowTime.plusMinutes(booking.getTime()));
 
         }catch (SchedulerException e){
+            log.error(e.getMessage());
             throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
         }
     }
@@ -249,6 +251,13 @@ public class BookingService {
         }
         booking.checkOutSeatBooking(LocalDateTime.now());
         booking.getSeat().checkOutSeat(true);
+
+        try {
+            quartzSchedulerService.cancelCheckCheckOutSeatBooking(bookingId);
+        }catch (SchedulerException e){
+            log.error(e.getMessage());
+            throw new CatchStudyException(ErrorCode.QUARTZ_SCHEDULER_ERROR);
+        }
     }
 
     @Transactional
