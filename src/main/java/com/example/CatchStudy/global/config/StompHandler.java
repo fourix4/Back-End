@@ -50,10 +50,6 @@ public class StompHandler implements ChannelInterceptor {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             accessor.setUser(authentication);
         }
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        System.out.println("----------------- stomp command : " + accessor.getCommand());
-        System.out.println("----------------- authentication : " + user.getUsername());
 
         return message;
     }

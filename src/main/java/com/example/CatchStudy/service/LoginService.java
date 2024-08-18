@@ -55,7 +55,6 @@ public class LoginService {
 
     public GoogleOAuthToken getAccessToken(String code) {
         RestTemplate rt = new RestTemplate();
-        HttpHeaders tokenHeaders = new HttpHeaders();
         GoogleOAuthToken oAuthToken = null;
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> params = new HashMap<>();
