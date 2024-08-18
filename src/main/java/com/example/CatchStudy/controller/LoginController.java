@@ -19,7 +19,7 @@ public class LoginController {
 
     private final LoginService loginService;
     @PostMapping("/login/google")
-    public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto, HttpServletRequest request) {
+    public Response googleLogin(@RequestBody OauthCodeRequestDto oauthCodeRequestDto) {
 
         return Response.success(Result.toResponseDto(new AccessTokenResponseDto(loginService.googleLogin(oauthCodeRequestDto))));
     }
