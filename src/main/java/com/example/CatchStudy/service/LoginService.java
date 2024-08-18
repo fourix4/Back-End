@@ -63,8 +63,7 @@ public class LoginService {
         params.put("client_id", clientId);
         params.put("client_secret", clientSecret);
         params.put("code", code);
-        //params.put("redirect_uri", redirectUri);
-        params.put("redirect_uri", "http://localhost:3000/oauthgoogle");
+        params.put("redirect_uri", redirectUri);
         // google에서 token 받기
         ResponseEntity<String> response = rt.postForEntity("https://oauth2.googleapis.com/token", params, String.class);
         // token에서 값 추출
