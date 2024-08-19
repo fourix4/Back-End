@@ -66,11 +66,11 @@ https://catch-study.kro.kr/
 
 # 🔫 Trouble Shooting
 
+[STOMP 메시지 전송시 spring security context 오류](https://kimtahwn.tistory.com/57)
+
 [프록시 객체가 아닌 내부 호출 시 트랜잭션이 적용되지 않는 오류](https://mahogany-voyage-519.notion.site/f80aece465a140ff8adf489dd97a0aa7?pvs=4)
 
 [Spring security Oauth2.0 Login 오류](https://mahogany-voyage-519.notion.site/spring-security-oauth2-login-1463a8579daf4413ac61d5c2b829221d?pvs=4)
-
-[socket 연결, 해제 시 Header값, spring security context 오류](https://mahogany-voyage-519.notion.site/Socket-header-null-Error-a8f0f6dfda3b48a1b84ac06b2f000cb9?pvs=4)
 
 [Quartz 작업 실행 시 트랜잭션 관련 오류](https://mahogany-voyage-519.notion.site/Quartz-25b9d81003da44c4874bbb10892c84d4?pvs=4)
 
