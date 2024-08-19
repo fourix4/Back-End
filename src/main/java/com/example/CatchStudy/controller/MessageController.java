@@ -22,7 +22,7 @@ public class MessageController {
     @MessageMapping("/{chatRoomId}/chat")
     @SendTo("/sub/{chatRoomId}/chat")
     public MessageResponseDto createMessage(@DestinationVariable long chatRoomId, MessageRequestDto messageRequestDto,
-                              @Header("userId") Long userId) {
-       return chatService.createMessage(chatRoomId, messageRequestDto, userId);
+                              @Header("Authorization") String token) {
+       return chatService.createMessage(chatRoomId, messageRequestDto, token);
     }
 }

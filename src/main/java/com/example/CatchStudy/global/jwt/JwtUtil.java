@@ -102,7 +102,7 @@ public class JwtUtil {
         return new UsernamePasswordAuthenticationToken(user, accessToken, authorities);
     }
 
-    public String getEmailJwtToken(String token) {
+    public String getEmailFromJwtToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
