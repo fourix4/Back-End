@@ -102,11 +102,11 @@ public class JwtUtil {
         return new UsernamePasswordAuthenticationToken(user, accessToken, authorities);
     }
 
-    public String getEmailFromRefreshToken(String refreshToken) {
+    public String getEmailJwtToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(refreshToken)
+                .parseClaimsJws(token)
                 .getBody();
 
         return claims.getSubject();

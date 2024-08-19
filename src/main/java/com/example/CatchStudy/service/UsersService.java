@@ -41,7 +41,7 @@ public class  UsersService {
         if(refreshToken == null) throw new CatchStudyException(ErrorCode.EXPIRED_LOGIN_ERROR);
 
         refreshTokenRepository.delete(accessToken);
-        String email = jwtUtil.getEmailFromRefreshToken(refreshToken);
+        String email = jwtUtil.getEmailJwtToken(refreshToken);
         Users user = usersRepository.findByEmail(email);
 
         JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
