@@ -36,7 +36,7 @@ public class ChatService {
     private final UsersService usersService;
     private final ChatNotificationRepository chatNotificationRepository;
     private final JwtUtil jwtUtil;
-    private final Map<Long, Map<String, Long>> chatRoomMap = new ConcurrentHashMap<>(); // chatRoomId, <session id, 접속한 유저 id>
+    private final Map<Long, Map<String, String>> chatRoomMap = new ConcurrentHashMap<>(); // chatRoomId, <session id, 접속한 유저 email>
     private final Map<String, Long> sessionToChatRoom = new ConcurrentHashMap<>();
 
     @Transactional
@@ -131,10 +131,11 @@ public class ChatService {
 
         long chatRoomId = Long.parseLong((String) ((List) accessor.getNativeHeader("chatRoomId")).get(0));
         String sessionId = accessor.getSessionId();
-        long userId = Long.parseLong((String) ((List) accessor.getNativeHeader("userId")).get(0));
+        String accessToken = ((String) ((List) accessor.getNativeHeader("Authorization")).get(0));
+        String email = jwtUtil.getEmailFromJwtToken(accessToken);
 
-        Map<String, Long> userMap = chatRoomMap.getOrDefault(chatRoomId, new HashMap<>());
-        userMap.put(sessionId, userId);
+        Map<String, String> userMap = chatRoomMap.getOrDefault(chatRoomId, new HashMap<>());
+        userMap.put(sessionId, email);
 
         chatRoomMap.put(chatRoomId, userMap);
         sessionToChatRoom.put(sessionId, chatRoomId);
@@ -146,13 +147,11 @@ public class ChatService {
         String sessionId = accessor.getSessionId();
         Long chatRoomId = sessionToChatRoom.get(sessionId);
 
-        Map<String, Long> userMap = chatRoomMap.get(chatRoomId);
+        Map<String, String> userMap = chatRoomMap.get(chatRoomId);
         userMap.remove(sessionId);
         sessionToChatRoom.remove(sessionId);
 
         if (userMap.isEmpty()) chatRoomMap.remove(chatRoomId);
         else chatRoomMap.put(chatRoomId, userMap);
     }
-
-
 }
