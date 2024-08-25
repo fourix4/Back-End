@@ -17,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,7 +39,7 @@ public class  UsersService {
         if(refreshToken == null) throw new CatchStudyException(ErrorCode.EXPIRED_LOGIN_ERROR);
 
         refreshTokenRepository.delete(accessToken);
-        String email = jwtUtil.getEmailFromRefreshToken(refreshToken);
+        String email = jwtUtil.getEmailFromJwtToken(refreshToken);
         Users user = usersRepository.findByEmail(email);
 
         JwtToken jwtToken = jwtUtil.generatedToken(user.getEmail(), user.getAuthor());
